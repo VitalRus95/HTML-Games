@@ -1,4 +1,4 @@
-# HTML Programmes / Программы на HTML
+# HTML Games / Игры на HTML
 ## ENGLISH
 * Author: Vital (Vitaly Pavlovich Ulyanov)
 * Description: A bunch of games in HTML, CSS, and JavaScript. All games can work *offline*.
