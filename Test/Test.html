@@ -6,42 +6,70 @@
     <title>Game</title>
     <style>
         :root {
-            --bgr: #e7ffd4;
+            --bgr: #eeebbd;
             --fgr: #000000;
         }
 
         * {
             background-color: var(--bgr);
             color: var(--fgr);
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
 
+        /* Elements by tag */
         body {
             display: flex;
             flex-direction: column;
             margin: auto;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             font-size: 14pt;
-            max-width: 90%;
+            width: 90%;
         }
 
-        button {
+        a {
+            background-color: transparent;
+            color: #000000;
+        }
+
+        button,
+        .pseudo-button {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
             background-color: #E1E1E1;
+            color: #000000;
             border: 2px outset #ADADAD;
             font-size: 1em;
             font-weight: 600;
             margin-block: 2px;
             min-height: 1.7em;
+            width: 100%;
+            cursor: pointer;
         }
 
         button:focus,
-        button:hover {
+        button:hover,
+        .pseudo-button:focus,
+        .pseudo-button:hover {
             background-color: #E5F1FB;
             border-color: #0078D7;
         }
 
+        h1, h2, h3 {
+            border-bottom: 3px inset #005499;
+            border-radius: 2px;
+            text-align: center;
+            margin-block: 4px;
+        }
+
         select {
             background-color: #E1E1E1;
-            border: 2px inset #ADADAD;
+            color: #000000;
+            border: 2px outset #ADADAD;
             border-radius: 0px;
             font-size: 1em;
             height: 1.6em;
@@ -50,49 +78,199 @@
         select:focus,
         select:hover {
             background-color: #CCE4F7;
+            color: #000000;
             border-color: #005499;
         }
 
         select:focus > option,
         select:hover > option {
             background-color: #FFFFFF;
+            color: #000000;
         }
 
+        /* Elements by ID */
         #lang {
             margin-top: 4px;
         }
 
-        #title {
-            border-bottom: 3px inset #005499;
-            border-radius: 2px;
-            text-align: center;
-            margin-block: 4px;
-        }
-
         #menu,
         #game,
-        #settings {
+        #levels,
+        #blocks,
+        #editor,
+        #settings,
+        #about {
             display: flex;
             flex-direction: column;
         }
 
         #game,
-        #settings {
+        #levels,
+        #blocks,
+        #editor,
+        #settings,
+        #about {
             display: none;
         }
 
         #author {
+            background-color: #ffbbbb;
+            color: #000000;
             border: 2px outset #c20000;
+            text-align: center;
             font-size: 1em;
-            margin-block: 4px;
+            margin: 0;
             padding: 2px;
             cursor: help;
+            width: 100%;
+            opacity: 0.9;
         }
 
         #author:focus,
         #author:hover {
             background-color: #E5F1FB;
             border-color: #0078D7;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-block: 2px;
+        }
+
+        #grid {
+            display: flex;
+            flex-direction: column;
+            row-gap: 1px;
+            overflow: auto;
+        }
+
+        #blocks-list {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            column-gap: 8px;
+            row-gap: 8px;
+            overflow: auto;
+        }
+
+        #blocks-list > span {
+            justify-items: center;
+        }
+
+        /* Classes */
+        .buttons-div {
+            display: flex;
+            flex-direction: row;
+            overflow: auto;
+            column-gap: 4px;
+        }
+
+        .editor-only {
+            display: none;
+        }
+
+        .row {
+            display: flex;
+            background-color: transparent;
+            column-gap: 1px;
+            width: fit-content;
+        }
+
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            color: #000000;
+            border: 2px solid #307fc0;
+            border-radius: 8px;
+            font-size: 28px;
+            font-size: calc(28px + 1vw);
+            font-weight: 600;
+            width: 28px;
+            height: 28px;
+            width: calc(28px + 2.5vw);
+            height: calc(28px + 2.5vw);
+            cursor: cell;
+            transition: all 2s ease;
+        }
+
+        .player {
+            background-color: #ff4343;
+            border-color: var(--fgr);
+            transform: scale(0.9);
+            transition: all 0s;
+            cursor: progress;
+        }
+
+        .wall {
+            background-color: var(--fgr);
+            cursor: not-allowed;
+        }
+
+        .turn-up,
+        .turn-down,
+        .turn-left,
+        .turn-right,
+        .turn-nw,
+        .turn-ne,
+        .turn-sw,
+        .turn-se {
+            border: 2px solid var(--fgr);
+        }
+
+        .turn-up {
+            border-top-width: 14px;
+            cursor: n-resize;
+        }
+
+        .turn-down {
+            border-bottom-width: 14px;
+            cursor: s-resize;
+        }
+
+        .turn-left {
+            border-left-width: 14px;
+            cursor: w-resize;
+        }
+
+        .turn-right {
+            border-right-width: 14px;
+            cursor: e-resize;
+        }
+
+        .turn-nw {
+            border-top-width: 14px;
+            border-left-width: 14px;
+            cursor: nw-resize;
+        }
+
+        .turn-ne {
+            border-top-width: 14px;
+            border-right-width: 14px;
+            cursor: ne-resize;
+        }
+
+        .turn-sw {
+            border-bottom-width: 14px;
+            border-left-width: 14px;
+            cursor: sw-resize;
+        }
+
+        .turn-se {
+            border-bottom-width: 14px;
+            border-right-width: 14px;
+            cursor: se-resize;
+        }
+
+        .finish {
+            background-color: #a2ff89;
+            border: 8px double var(--fgr);
+            border-radius: 50%;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -103,36 +281,515 @@
     <div id='menu'>
         <h1 id='title'>Game</h1>
 
-        <button id='start-button' onclick='switchScene("menu", "game")'>
+        <button id='start-button' onclick='switchScene("menu", "levels")'>
             Start game
+        </button>
+        <button id='editor-button' onclick='startGame(true, "menu")'>
+            Level editor
         </button>
         <button id='settings-button' onclick='switchScene("menu", "settings")'>
             Settings
         </button>
+        <button id='about-button' onclick='switchScene("menu", "about")'>
+            About
+        </button>
+
+        <!-- Author -->
+        <p id='author'>
+            Made by <a href="https://github.com/VitalRus95">Vitaly Pavlovich Ulyanov (Vital)</a>.
+        </p>
+    </div>
+
+    <!-- Levels div -->
+    <div id='levels'>
+        <button id='levels-back' onclick='switchScene("levels", "menu")'>
+            Back
+        </button>
+
+        <h2 id='levels-title'>Levels</h2>
+
+        <div id='load-div'>
+            <label id='load-label' for='load-level' class='pseudo-button'>Load level</label>
+            <input id='load-level' type='file' accept='.json' style='opacity: 0;'>
+        </div>
     </div>
 
     <!-- Game div -->
     <div id='game'>
-        Game
         <button id='game-back' onclick='switchScene("game", "menu")'>
-            Return to menu
+            Back
         </button>
+
+        <div class='editor-only'>
+            <a id='save-level-button' class='pseudo-button' href=''>
+                Save level
+            </a>
+        </div>
+
+        <div id='container'>
+            <div id='grid'></div>
+        </div>
+
+        <div class='buttons-div'>
+            <button id='launch'>Start</button>
+            <button id='stop'>Stop</button>
+            <button id='reset'>Reset</button>
+        </div>
+    </div>
+
+    <!-- Blocks div -->
+    <div id='blocks'>
+        <button id='blocks-back' onclick='switchScene("blocks", "game")'>
+            Return to game
+        </button>
+
+        <h2 id='blocks-title'>Blocks</h2>
+
+        <div id='blocks-list'>
+            <span  class='editor-only'>
+                <div class='cell player'></div>
+                <button onclick='setCell(selected.x, selected.y, "player")'>Player</button>
+            </span>
+    
+            <span class='editor-only'>
+                <div class='cell finish'></div>
+                <button onclick='setCell(selected.x, selected.y, "finish")'>Finish</button>
+            </span>
+
+            <span>
+                <div class='cell'></div>
+                <button onclick='setCell(selected.x, selected.y, "cell")'>Empty</button>
+            </span>
+
+            <span class='editor-only'>
+                <div class='cell wall'></div>
+                <button onclick='setCell(selected.x, selected.y, "wall")'>Wall</button>
+            </span>
+
+            <span>
+                <div class='cell turn-up'></div>
+                <button onclick='setCell(selected.x, selected.y, "turn-up")'>Turn N</button>
+            </span>
+
+            <span>
+                <div class='cell turn-down'></div>
+                <button onclick='setCell(selected.x, selected.y, "turn-down")'>Turn S</button>
+            </span>
+
+            <span>
+                <div class='cell turn-left'></div>
+                <button onclick='setCell(selected.x, selected.y, "turn-left")'>Turn W</button>
+            </span>
+
+            <span>
+                <div class='cell turn-right'></div>
+                <button onclick='setCell(selected.x, selected.y, "turn-right")'>Turn E</button>
+            </span>
+
+            <span>
+                <div class='cell turn-nw'></div>
+                <button onclick='setCell(selected.x, selected.y, "turn-nw")'>Turn NW</button>
+            </span>
+
+            <span>
+                <div class='cell turn-ne'></div>
+                <button onclick='setCell(selected.x, selected.y, "turn-ne")'>Turn NE</button>
+            </span>
+
+            <span>
+                <div class='cell turn-sw'></div>
+                <button onclick='setCell(selected.x, selected.y, "turn-sw")'>Turn SW</button>
+            </span>
+
+            <span>
+                <div class='cell turn-se'></div>
+                <button onclick='setCell(selected.x, selected.y, "turn-se")'>Turn SE</button>
+            </span>
+        </div>
     </div>
 
     <!-- Settings div -->
     <div id='settings'>
-        Settings
         <button id='settings-back' onclick='switchScene("settings", "menu")'>
-            Return to menu
+            Back
         </button>
+
+        <h2 id='settings-title'>Settings</h2>
     </div>
 
-    <!-- Author -->
-    <p id='author' style='font-style: italic'>
-        Made by <a href="https://github.com/VitalRus95">Vitaly Pavlovich Ulyanov (Vital)</a>.
-    </p>
+    <!-- About div -->
+    <div id='about'>
+        <button id='about-back' onclick='switchScene("about", "menu")'>
+            Back
+        </button>
+
+        <h2 id='about-title'>About</h2>
+    </div>
 
     <script>
+        // Elements
+        /** @type {HTMLDivElement} */
+        let game = document.getElementById('game');
+        /** @type {HTMLDivElement} */
+        let grid = document.getElementById('grid');
+        /** @type {HTMLButtonElement} */
+        let launchButton = document.getElementById('launch');
+        /** @type {HTMLButtonElement} */
+        let stopButton = document.getElementById('stop');
+        /** @type {HTMLButtonElement} */
+        let resetButton = document.getElementById('reset');
+        /** @type {HTMLAnchorElement} */
+        let saveLevelButton = document.getElementById('save-level-button');
+        /** @type {HTMLInputElement} */
+        let loadLevel = document.getElementById('load-level');
+
+        // Variables
+        /** @type {boolean} */
+        let levelEditorEnabled = false;
+        /** @type {number} */
+        let moveInterval = undefined;
+        /** @type {{x: number, y: number}} */
+        let size = { x: 9, y: 9 };
+        /** @type {{x: number, y: number}} */
+        let start = { x: 4, y: 4 };
+        /** @type {{x: number, y: number}} */
+        let selected = { x: 0, y: 0 };
+        /** @type {{x: number, y: number}} */
+        let player = { x: 0, y: 0 };
+        /** @type {{x: number, y: number}} */
+        let initialSpeed = { x: 0, y: 1 };
+        /** @type {{x: number, y: number}} */
+        let speed = { x: 0, y: 0 };
+        /** @type {{
+            gridSize: { x: number, y: number },
+            playerPos: { x: number, y: number },
+            initSpeed: { x: number, y: number },
+            blocks: { x: number, y: number, type: string }[]
+        }}*/
+        let level = {};
+
+        fillGrid();
+
+        launchButton.addEventListener('click', function (event) {
+            removePlayer();
+            addPlayer(true);
+            if (moveInterval === undefined) {
+                moveInterval = setInterval(processMovement, 500);
+            }
+        });
+
+        stopButton.addEventListener('click', function (event) {
+            stopGameProcess();
+            removePlayer();
+            addPlayer(true);
+        });
+
+        resetButton.addEventListener('click', function (event) {
+            stopGameProcess();
+            fillGrid();
+        });
+
+        saveLevelButton.addEventListener('click', function (event) {
+            if (!grid.hasChildNodes()) return;
+
+            /** @type {{ x: number, y: number, type: string }[]} */
+            let blocks = [];
+
+            // Iterate over cells and save those with special classes
+            for (let y = 0; y < size.y; y++) {
+                for (let x = 0; x < size.x; x++) {
+                    /** @type {HTMLDivElement} */
+                    let cell = getCell(x, y);
+
+                    if (cell
+                        && cell.classList.length > 1
+                        && cell.classList.item(1) !== 'player'
+                    ) {
+                        blocks.push({
+                            x: x,
+                            y: y,
+                            type: cell.classList.item(1)
+                        });
+                    }
+                }
+            }
+
+            /** @type {{
+                gridSize: { x: number, y: number },
+                playerPos: { x: number, y: number },
+                initSpeed: { x: number, y: number },
+                blocks: { x: number, y: number, type: string }[]
+            }}*/
+            let file = {
+                gridSize: size,
+                playerPos: player,
+                initSpeed: initialSpeed,
+                blocks: blocks
+            };
+
+            let data = encodeURIComponent(
+                JSON.stringify(file, undefined, 2)
+            );
+            saveLevelButton.download = 'MyLevel.json';
+            saveLevelButton.href = `data:text/plain;charset=utf-8,${data}`;
+        });
+
+        loadLevel.addEventListener('input', async function (event) {
+            await loadLevel.files[0].text().then((data) => {
+                try {
+                    level = JSON.parse(data);
+                    size.x = level.gridSize.x;
+                    size.y = level.gridSize.y;
+                    start.x = level.playerPos.x;
+                    start.y = level.playerPos.y;
+                    initialSpeed.x = level.initSpeed.x;
+                    initialSpeed.y = level.initSpeed.y;
+                    startGame(false, 'levels');
+                    fillGrid();
+                } catch (error) {
+                    alert(`Error while loading the level: ${error}`);
+                }
+            });
+        });
+
+        function fillGrid() {
+            // Reset everything
+            while (grid.hasChildNodes()) grid.lastChild.remove();
+            clearInterval(moveInterval);
+
+            // Create rows and cells
+            for (let y = 0; y < size.y; y++) {
+                /** @type {HTMLDivElement} */
+                let row = grid.appendChild(
+                    document.createElement('div')
+                );
+                row.classList.add('row');
+
+                for (let x = 0; x < size.x; x++) {
+                    /** @type {HTMLDivElement} */
+                    let cell = row.appendChild(
+                        document.createElement('div')
+                    );
+                    cell.classList.add('cell');
+                    cell.tabIndex = 0;
+                    cell.id = `${x};${y}`;
+                    cell.addEventListener('keydown', function (event) {
+                        switch (event.key) {
+                            case 'ArrowUp':
+                                event.preventDefault();
+                                getCell(x, y - 1)?.focus();
+                                break;
+                            case 'ArrowDown':
+                                event.preventDefault();
+                                getCell(x, y + 1)?.focus();
+                                break;
+                            case 'ArrowLeft':
+                                event.preventDefault();
+                                getCell(x - 1, y)?.focus();
+                                break;
+                            case 'ArrowRight':
+                                event.preventDefault();
+                                getCell(x + 1, y)?.focus();
+                                break;
+                            case 'Enter':
+                            case 'Space':
+                                event.preventDefault();
+                                if (!this.classList.contains('protected')
+                                    || levelEditorEnabled === true
+                                ) {
+                                    switchScene('game', 'blocks');
+                                    selected.x = x;
+                                    selected.y = y;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                    cell.addEventListener('mouseup', function (event) {
+                        event.preventDefault();
+                        if (this.classList.contains('protected')
+                            && levelEditorEnabled === false
+                        ) {
+                            return
+                        };
+                        if (event.button === 2) { // Right mouse key
+                            setCell(x, y, 'cell');
+                        } else {
+                            switchScene('game', 'blocks');
+                            selected.x = x;
+                            selected.y = y;
+                        }
+                    });
+                    cell.addEventListener('contextmenu', function (event) {
+                        event.preventDefault();
+                    });
+                }
+            }
+
+            // Add player
+            removePlayer();
+            addPlayer(true);
+
+            // Fill special cells
+            if (level.blocks) {
+                for (let b of level.blocks) {
+                    setCell(b.x, b.y, b.type);
+                    getCell(b.x, b.y)?.classList.add('protected');
+                }
+            }
+        }
+
+        /**
+         * @param {number} x
+         * @param {number} y
+         * @param {string} type
+        */
+        function setCell(x, y, type) {
+            /** @type {HTMLDivElement} */
+            let cell = getCell(x, y);
+            if (!cell) return;
+            if (cell.classList.contains('protected')
+                && levelEditorEnabled === false
+            ) {
+                return;
+            }
+
+            cell.className = '';
+            cell.classList.add('cell');
+
+            switch (type) {
+                case 'cell':
+                    break;
+                case 'player':
+                    removePlayer();
+                    player.x = x;
+                    player.y = y;
+                    start.x = x;
+                    start.y = y;
+                    addPlayer();
+                default:
+                    cell.classList.add(type);
+                    break;
+            }
+
+            switchScene('blocks', 'game');
+        }
+
+        /**
+         * @param {number} x
+         * @param {number} y
+        */
+        function getCell(x, y) {
+            /** @type {HTMLDivElement} */
+            let cell = document.getElementById(`${x};${y}`);
+            return cell;
+        }
+
+        /**
+         * @param {boolean} resetPosition
+        */
+        function addPlayer(resetPosition) {
+            if (resetPosition) {
+                player.x = start.x;
+                player.y = start.y;
+                speed.x = initialSpeed.x;
+                speed.y = initialSpeed.y;
+            }
+
+            getCell(player.x, player.y)?.classList.add('player', 'protected');
+        }
+
+        function removePlayer() {
+            getCell(player.x, player.y)?.classList.remove('player');
+        }
+
+        function stopGameProcess() {
+            if (moveInterval) {
+                clearInterval(moveInterval);
+                moveInterval = undefined;
+            }
+        }
+
+        function processMovement() {
+            if (game.style.display === 'none') return;
+
+            removePlayer();
+            player.x = ringClamp(0, player.x + speed.x, size.x - 1);
+            player.y = ringClamp(0, player.y + speed.y, size.y - 1);
+
+            /** @type {HTMLDivElement} */
+            let newCell = getCell(player.x, player.y);
+            if (!newCell) return; // Should not be true but still
+            
+            // Wall collision
+            if (newCell.classList.contains('wall')) {
+                stopGameProcess();
+                return;
+            }
+
+            // Finish reached
+            if (newCell.classList.contains('finish')) {
+                // vicrory
+                addPlayer();
+                stopGameProcess();
+                return;
+            }
+
+            // Continue moving
+            addPlayer();
+
+            // Switch direction
+            switch (newCell.classList.item(1)) {
+                case 'turn-up':
+                    speed.x = 0;
+                    speed.y = -1;
+                    break;
+                case 'turn-down':
+                    speed.x = 0;
+                    speed.y = 1;
+                    break;
+                case 'turn-left':
+                    speed.x = -1;
+                    speed.y = 0;
+                    break;
+                case 'turn-right':
+                    speed.x = 1;
+                    speed.y = 0;
+                    break;
+                case 'turn-nw':
+                    speed.x = -1;
+                    speed.y = -1;
+                    break;
+                case 'turn-ne':
+                    speed.x = 1;
+                    speed.y = -1;
+                    break;
+                case 'turn-sw':
+                    speed.x = -1;
+                    speed.y = 1;
+                    break;
+                case 'turn-se':
+                    speed.x = 1;
+                    speed.y = 1;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /**
+         * @param {boolean} editorMode
+         * @param {string} from
+        */
+        function startGame(editorMode, from) {
+            levelEditorEnabled = editorMode; 
+            for (let e of document.getElementsByClassName('editor-only')) {
+                e.style.display = editorMode ? 'block' : 'none';
+            }
+            switchScene(from, 'game');
+        }
+
         function switchScene(from, to) {
             try {
                 document.getElementById(from).style.display = 'none';
@@ -140,6 +797,19 @@
             } catch (error) {
                 console.log(error);
             }
+        }
+
+        /**
+         * @param {number} min
+         * @param {number} value
+         * @param {number} max
+        */
+        function ringClamp(min, value, max) {
+            return value < min
+                ? max
+                : value > max
+                    ? min
+                    : value;
         }
 
         generateLanguagesList([
@@ -166,15 +836,39 @@
                         ]
                     },
                     {
+                        "id": "about-button",
+                        "childNodesTexts": [
+                            "About"
+                        ]
+                    },
+                    {
                         "id": "game-back",
                         "childNodesTexts": [
-                            "Return to menu"
+                            "Back"
                         ]
                     },
                     {
                         "id": "settings-back",
                         "childNodesTexts": [
-                            "Return to menu"
+                            "Back"
+                        ]
+                    },
+                    {
+                        "id": "settings-title",
+                        "childNodesTexts": [
+                            "Settings"
+                        ]
+                    },
+                    {
+                        "id": "about-back",
+                        "childNodesTexts": [
+                            "Back"
+                        ]
+                    },
+                    {
+                        "id": "about-title",
+                        "childNodesTexts": [
+                            "About"
                         ]
                     },
                     {
@@ -210,15 +904,39 @@
                         ]
                     },
                     {
+                        "id": "about-button",
+                        "childNodesTexts": [
+                            "Об игре"
+                        ]
+                    },
+                    {
                         "id": "game-back",
                         "childNodesTexts": [
-                            "Возврат в меню"
+                            "Назад"
                         ]
                     },
                     {
                         "id": "settings-back",
                         "childNodesTexts": [
-                            "Возврат в меню"
+                            "Назад"
+                        ]
+                    },
+                    {
+                        "id": "settings-title",
+                        "childNodesTexts": [
+                            "Настройки"
+                        ]
+                    },
+                    {
+                        "id": "about-back",
+                        "childNodesTexts": [
+                            "Назад"
+                        ]
+                    },
+                    {
+                        "id": "about-title",
+                        "childNodesTexts": [
+                            "Об игре"
                         ]
                     },
                     {
@@ -282,14 +1000,14 @@
                     menu.value = selection;
                 } else if (navigator.language) {
                     // Iterate over translations
-                    for (const l of languages) {
+                    for (let l of languages) {
                         // If the valid option is finally found, exit
                         if (selection) {
                             break;
                         } else if (l.langTags) {
                             // Otherwise iterate over the tags and
                             // compare them to the browser language
-                            for (const t of l.langTags) {
+                            for (let t of l.langTags) {
                                 if (navigator.language === t) {
                                     menu.value = l.name;
                                     selection = l.name;
@@ -307,7 +1025,7 @@
                 /** @type {Translation} */
                 let translation = {};
 
-                for (const l of languages) {
+                for (let l of languages) {
                     if (l.name === selection) {
                         translation = l;
                         break;
@@ -317,7 +1035,7 @@
                 if (translation) {
                     localStorage.setItem('lang', selection);
 
-                    for (const e of translation.elements) {
+                    for (let e of translation.elements) {
                         let target = document.getElementById(e.id);
 
                         if (target) {
@@ -333,7 +1051,7 @@
                                 /** @type {number} */
                                 let index = 0;
 
-                                for (const c of target.childNodes) {
+                                for (let c of target.childNodes) {
                                     if (c.textContent
                                         && c.textContent.trim() !== ''
                                         && e.childNodesTexts[index]

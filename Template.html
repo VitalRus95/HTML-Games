@@ -6,13 +6,16 @@
     <title>Game</title>
     <style>
         :root {
-            --bgr: #e7ffd4;
+            --bgr: #eeebbd;
             --fgr: #000000;
         }
 
         * {
             background-color: var(--bgr);
             color: var(--fgr);
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
         }
 
         body {
@@ -21,7 +24,11 @@
             margin: auto;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             font-size: 14pt;
-            max-width: 90%;
+            width: 90%;
+        }
+
+        a {
+            background-color: transparent;
         }
 
         button {
@@ -39,9 +46,16 @@
             border-color: #0078D7;
         }
 
+        h1, h2, h3 {
+            border-bottom: 3px inset #005499;
+            border-radius: 2px;
+            text-align: center;
+            margin-block: 4px;
+        }
+
         select {
             background-color: #E1E1E1;
-            border: 2px inset #ADADAD;
+            border: 2px outset #ADADAD;
             border-radius: 0px;
             font-size: 1em;
             height: 1.6em;
@@ -62,29 +76,26 @@
             margin-top: 4px;
         }
 
-        #title {
-            border-bottom: 3px inset #005499;
-            border-radius: 2px;
-            text-align: center;
-            margin-block: 4px;
-        }
-
         #menu,
         #game,
-        #settings {
+        #settings,
+        #about {
             display: flex;
             flex-direction: column;
         }
 
         #game,
-        #settings {
+        #settings,
+        #about {
             display: none;
         }
 
         #author {
+            background-color: #ffbbbb;
             border: 2px outset #c20000;
+            text-align: center;
             font-size: 1em;
-            margin-block: 4px;
+            margin: 0;
             padding: 2px;
             cursor: help;
         }
@@ -109,11 +120,18 @@
         <button id='settings-button' onclick='switchScene("menu", "settings")'>
             Settings
         </button>
+        <button id='about-button' onclick='switchScene("menu", "about")'>
+            About
+        </button>
+
+        <!-- Author -->
+        <p id='author'>
+            Made by <a href="https://github.com/VitalRus95">Vitaly Pavlovich Ulyanov (Vital)</a>.
+        </p>
     </div>
 
     <!-- Game div -->
     <div id='game'>
-        Game
         <button id='game-back' onclick='switchScene("game", "menu")'>
             Return to menu
         </button>
@@ -121,16 +139,21 @@
 
     <!-- Settings div -->
     <div id='settings'>
-        Settings
         <button id='settings-back' onclick='switchScene("settings", "menu")'>
             Return to menu
         </button>
+
+        <h2 id='settings-title'>Settings</h2>
     </div>
 
-    <!-- Author -->
-    <p id='author' style='font-style: italic'>
-        Made by <a href="https://github.com/VitalRus95">Vitaly Pavlovich Ulyanov (Vital)</a>.
-    </p>
+    <!-- About div -->
+    <div id='about'>
+        <button id='about-back' onclick='switchScene("about", "menu")'>
+            Return to menu
+        </button>
+
+        <h2 id='about-title'>About</h2>
+    </div>
 
     <script>
         function switchScene(from, to) {
@@ -166,6 +189,12 @@
                         ]
                     },
                     {
+                        "id": "about-button",
+                        "childNodesTexts": [
+                            "About"
+                        ]
+                    },
+                    {
                         "id": "game-back",
                         "childNodesTexts": [
                             "Return to menu"
@@ -175,6 +204,24 @@
                         "id": "settings-back",
                         "childNodesTexts": [
                             "Return to menu"
+                        ]
+                    },
+                    {
+                        "id": "settings-title",
+                        "childNodesTexts": [
+                            "Settings"
+                        ]
+                    },
+                    {
+                        "id": "about-back",
+                        "childNodesTexts": [
+                            "Return to menu"
+                        ]
+                    },
+                    {
+                        "id": "about-title",
+                        "childNodesTexts": [
+                            "About"
                         ]
                     },
                     {
@@ -210,6 +257,12 @@
                         ]
                     },
                     {
+                        "id": "about-button",
+                        "childNodesTexts": [
+                            "Об игре"
+                        ]
+                    },
+                    {
                         "id": "game-back",
                         "childNodesTexts": [
                             "Возврат в меню"
@@ -219,6 +272,24 @@
                         "id": "settings-back",
                         "childNodesTexts": [
                             "Возврат в меню"
+                        ]
+                    },
+                    {
+                        "id": "settings-title",
+                        "childNodesTexts": [
+                            "Настройки"
+                        ]
+                    },
+                    {
+                        "id": "about-back",
+                        "childNodesTexts": [
+                            "Возврат в меню"
+                        ]
+                    },
+                    {
+                        "id": "about-title",
+                        "childNodesTexts": [
+                            "Об игре"
                         ]
                     },
                     {
