@@ -26,15 +26,45 @@
             }
         }
 
-        /* Root and all elements */
-        :root {
-            --bgr: #eeebbd;
-            --fgr: #000000;
+        @keyframes left-right {
+            50% {
+                transform: scaleX(0.4);
+            }
         }
 
+        @keyframes up-down {
+            50% {
+                transform: scaleY(0.4);
+            }
+        }
+
+        @keyframes corners {
+            50% {
+                transform: scale(0.6);
+            }
+        }
+
+        .player.turn-left,
+        .player.turn-right {
+            animation: left-right 0.3s ease;
+        }
+
+        .player.turn-up,
+        .player.turn-down {
+            animation: up-down 0.3s ease;
+        }
+
+        .player.turn-nw,
+        .player.turn-ne,
+        .player.turn-sw,
+        .player.turn-se {
+            animation: corners 0.3s ease;
+        }
+
+        /* All elements */
         * {
-            background-color: var(--bgr);
-            color: var(--fgr);
+            background-color: #eeebbd;
+            color: #000000;
             box-sizing: border-box;
             -moz-box-sizing: border-box;
             -webkit-box-sizing: border-box;
@@ -101,6 +131,7 @@
             border: 2px outset #ADADAD;
             border-radius: 0px;
             font-size: 1em;
+            margin-block: 2px;
             height: 1.6em;
         }
 
@@ -175,6 +206,30 @@
             overflow: auto;
         }
 
+        #editor-grid-size {
+            display: flex;
+            flex-direction: row;
+            overflow: auto;
+            column-gap: 8px;
+            font-weight: 600;
+            padding: 2px;
+        }
+
+        #size-x,
+        #size-y {
+            background-color: #E1E1E1;
+            font-size: 1em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        #size-x:focus,
+        #size-x:hover,
+        #size-y:focus,
+        #size-y:hover {
+            background-color: #E5F1FB;
+        }
+
         #blocks-list {
             display: flex;
             flex-direction: row;
@@ -205,7 +260,6 @@
             display: flex;
             background-color: transparent;
             column-gap: 1px;
-            width: fit-content;
         }
 
         .cell {
@@ -219,24 +273,28 @@
             font-size: 28px;
             font-size: calc(28px + 1vw);
             font-weight: 600;
-            width: 28px;
-            height: 28px;
-            width: calc(28px + 2.5vw);
-            height: calc(28px + 2.5vw);
+            min-width: 26px;
+            min-height: 26px;
+            max-width: 26px;
+            max-height: 26px;
+            min-width: calc(26px + 2.6vw);
+            min-height: calc(26px + 2.6vw);
+            max-width: calc(26px + 2.6vw);
+            max-height: calc(26px + 2.6vw);
             cursor: cell;
             transition: all 2s ease;
         }
 
         .player {
             background-color: #ff4343;
-            border-color: var(--fgr);
+            border-color: #000000;
             transform: scale(0.9);
             transition: all 0s;
             cursor: progress;
         }
 
         .wall {
-            background-color: var(--fgr);
+            background-color: #000000;
             cursor: not-allowed;
         }
 
@@ -248,7 +306,7 @@
         .turn-ne,
         .turn-sw,
         .turn-se {
-            border: 2px solid var(--fgr);
+            border: 2px solid #000000;
         }
 
         .turn-up {
@@ -297,7 +355,7 @@
 
         .finish {
             background-color: #a2ff89;
-            border: 8px double var(--fgr);
+            border: 8px double #000000;
             border-radius: 50%;
             cursor: pointer;
         }
@@ -355,6 +413,17 @@
             <a id='save-level-button' class='pseudo-button' href=''>
                 Save level
             </a>
+
+            <div id='editor-grid-size'>
+                <div>
+                    <label for='size-x'>X</label>
+                    <input type='number' id='size-x' min='5' max='100' value='5'>
+                </div>
+                <div>
+                    <label for='size-y'>Y</label>
+                    <input type='number' id='size-y' min='5' max='100' value='5'>
+                </div>
+            </div>
         </div>
 
         <div id='container'>
@@ -498,6 +567,10 @@
         /** @type {HTMLAnchorElement} */
         let saveLevelButton = document.getElementById('save-level-button');
         /** @type {HTMLInputElement} */
+        let sizeX = document.getElementById('size-x');
+        /** @type {HTMLInputElement} */
+        let sizeY = document.getElementById('size-y');
+        /** @type {HTMLInputElement} */
         let loadLevel = document.getElementById('load-level');
 
         // Variables
@@ -506,24 +579,23 @@
         /** @type {number} */
         let moveInterval = null;
         /** @type {{x: number, y: number}} */
-        let size = { x: 9, y: 9 };
-        /** @type {{x: number, y: number}} */
-        let start = { x: 4, y: 4 };
-        /** @type {{x: number, y: number}} */
         let selected = { x: 0, y: 0 };
         /** @type {{x: number, y: number}} */
         let player = { x: 0, y: 0 };
         /** @type {{x: number, y: number}} */
-        let initialSpeed = { x: 0, y: 1 };
-        /** @type {{x: number, y: number}} */
         let speed = { x: 0, y: 0 };
         /** @type {{
             gridSize: { x: number, y: number },
-            playerPos: { x: number, y: number },
+            start: { x: number, y: number },
             initSpeed: { x: number, y: number },
             blocks: { x: number, y: number, type: string }[]
         }}*/
-        let level = {};
+        let level = {
+            gridSize: { x: 5, y: 5},
+            start: { x: 2, y: 2},
+            initSpeed: { x: 0, y: 1 },
+            blocks: []
+        };
 
         launchButton.addEventListener('click', function (event) {
             removePlayer();
@@ -548,43 +620,11 @@
         saveLevelButton.addEventListener('click', function (event) {
             if (!grid.hasChildNodes()) return;
 
-            /** @type {{ x: number, y: number, type: string }[]} */
-            let blocks = [];
-
             // Iterate over cells and save those with special classes
-            for (let y = 0; y < size.y; y++) {
-                for (let x = 0; x < size.x; x++) {
-                    /** @type {HTMLDivElement} */
-                    let cell = getCell(x, y);
-
-                    if (cell
-                        && cell.classList.length > 1
-                        && cell.classList.item(1) !== 'player'
-                    ) {
-                        blocks.push({
-                            x: x,
-                            y: y,
-                            type: cell.classList.item(1)
-                        });
-                    }
-                }
-            }
-
-            /** @type {{
-                gridSize: { x: number, y: number },
-                playerPos: { x: number, y: number },
-                initSpeed: { x: number, y: number },
-                blocks: { x: number, y: number, type: string }[]
-            }}*/
-            let file = {
-                gridSize: size,
-                playerPos: player,
-                initSpeed: initialSpeed,
-                blocks: blocks
-            };
+            saveGridBlocks();
 
             let data = encodeURIComponent(
-                JSON.stringify(file, null, 2)
+                JSON.stringify(level, null, 2)
             );
             saveLevelButton.download = 'MyLevel.json';
             saveLevelButton.href = `data:text/plain;charset=utf-8,${data}`;
@@ -594,12 +634,6 @@
             await loadLevel.files[0].text().then((data) => {
                 try {
                     level = JSON.parse(data);
-                    size.x = level.gridSize.x;
-                    size.y = level.gridSize.y;
-                    start.x = level.playerPos.x;
-                    start.y = level.playerPos.y;
-                    initialSpeed.x = level.initSpeed.x;
-                    initialSpeed.y = level.initSpeed.y;
                     startGame('levels', false);
                     fillGrid();
                     loadLevel.value = '';
@@ -609,6 +643,20 @@
             });
         });
 
+        sizeX.addEventListener('blur', function (event) {
+            level.gridSize.x = clamp(+sizeX.min, +sizeX.value, +sizeX.max);
+            sizeX.value = level.gridSize.x;
+            saveGridBlocks();
+            fillGrid();
+        });
+
+        sizeY.addEventListener('blur', function (event) {
+            level.gridSize.y = clamp(+sizeY.min, +sizeY.value, +sizeY.max);
+            sizeY.value = level.gridSize.y;
+            saveGridBlocks();
+            fillGrid();
+        });
+
         function fillGrid() {
             // Reset everything
             while (grid.hasChildNodes()) grid.lastChild.remove();
@@ -616,14 +664,14 @@
             clearInterval(moveInterval);
 
             // Create rows and cells
-            for (let y = 0; y < size.y; y++) {
+            for (let y = 0; y < level.gridSize.y; y++) {
                 /** @type {HTMLDivElement} */
                 let row = grid.appendChild(
                     document.createElement('div')
                 );
                 row.classList.add('row');
 
-                for (let x = 0; x < size.x; x++) {
+                for (let x = 0; x < level.gridSize.x; x++) {
                     /** @type {HTMLDivElement} */
                     let cell = row.appendChild(
                         document.createElement('div')
@@ -692,6 +740,28 @@
             }
         }
 
+        function saveGridBlocks() {
+            level.blocks = [];
+
+            for (let y = 0; y < level.gridSize.y; y++) {
+                for (let x = 0; x < level.gridSize.x; x++) {
+                    /** @type {HTMLDivElement} */
+                    let cell = getCell(x, y);
+
+                    if (cell
+                        && cell.classList.length > 1
+                        && cell.classList.item(1) !== 'player'
+                    ) {
+                        level.blocks.push({
+                            x: x,
+                            y: y,
+                            type: cell.classList.item(1)
+                        });
+                    }
+                }
+            }
+        }
+
         /**
          * @param {number} x
          * @param {number} y
@@ -712,11 +782,12 @@
                     removePlayer();
                     player.x = x;
                     player.y = y;
-                    start.x = x;
-                    start.y = y;
+                    level.start.x = x;
+                    level.start.y = y;
                     addPlayer();
                 default:
                     cell.classList.add(type);
+                    if (isInEditor) cell.classList.add('protected');
                     break;
             }
             
@@ -757,10 +828,10 @@
         */
         function addPlayer(resetPosition) {
             if (resetPosition) {
-                player.x = start.x;
-                player.y = start.y;
-                speed.x = initialSpeed.x;
-                speed.y = initialSpeed.y;
+                player.x = level.start.x;
+                player.y = level.start.y;
+                speed.x = level.initSpeed.x;
+                speed.y = level.initSpeed.y;
             }
 
             getCell(player.x, player.y)?.classList.add('player');
@@ -839,8 +910,8 @@
 
             // Continue moving
             removePlayer();
-            player.x = ringClamp(0, player.x + speed.x, size.x - 1);
-            player.y = ringClamp(0, player.y + speed.y, size.y - 1);
+            player.x = ringClamp(0, player.x + speed.x, level.gridSize.x - 1);
+            player.y = ringClamp(0, player.y + speed.y, level.gridSize.y - 1);
             addPlayer();
         }
 
@@ -849,7 +920,10 @@
          * @param {boolean} editorMode
         */
         function startGame(from, editorMode) {
-            isInEditor = editorMode; 
+            isInEditor = editorMode;
+            if (isInEditor === true) fillGrid();
+            if (!moveInterval) addPlayer(true);
+
             for (let e of document.getElementsByClassName('editor-only')) {
                 e.style.display = editorMode ? 'block' : 'none';
             }
@@ -857,6 +931,7 @@
         }
 
         function pauseGame() {
+            if (isInEditor) saveGridBlocks();
             switchScene('game', isInEditor ? 'menu' : 'levels');
             grid.style.animation = 'none';
         }
@@ -881,6 +956,20 @@
                 ? max
                 : value > max
                     ? min
+                    : value;
+        }
+
+        /**
+         * @param {number} min
+         * @param {number} value
+         * @param {number} max
+         * @returns {number}
+        */
+        function clamp(min, value, max) {
+            return value < min
+                ? min
+                : value > max
+                    ? max
                     : value;
         }
 
