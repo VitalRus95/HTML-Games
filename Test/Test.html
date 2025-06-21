@@ -44,6 +44,18 @@
             }
         }
 
+        @keyframes wall {
+            50% {
+                transform: scale(0.7);
+            }
+        }
+
+        @keyframes finish {
+            50% {
+                transform: scale(0.8);
+            }
+        }
+
         .player.turn-left,
         .player.turn-right {
             animation: left-right 0.3s ease;
@@ -61,9 +73,18 @@
             animation: corners 0.3s ease;
         }
 
+        .player.wall {
+            border: 0.5em solid #ff4343;
+            animation: wall 0.7s ease;
+        }
+
+        .player.finish {
+            background-color: #ff4343;
+            animation: finish 0.7s ease;
+        }
+
         /* All elements */
         * {
-            background-color: #eeebbd;
             color: #000000;
             box-sizing: border-box;
             -moz-box-sizing: border-box;
@@ -72,12 +93,22 @@
         }
 
         /* Elements by tag */
+        html {
+            align-content: center;
+            background-color: #f1dac4;
+            background-image: linear-gradient(60deg, #e9a2a2, transparent, #b2e0e7);
+            background-attachment: fixed;
+            height: 100%;
+        }
+
         body {
             display: flex;
             flex-direction: column;
             margin: auto;
             font-size: 14pt;
-            width: 90%;
+            min-width: 40%;
+            width: fit-content;
+            max-width: 90%;
         }
 
         a {
@@ -192,6 +223,16 @@
             border-color: #0078D7;
         }
 
+        #load-div,
+        #editor-load-div {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            column-gap: 8px;
+            overflow: auto;
+            cursor: pointer;
+        }
+
         #container {
             display: flex;
             flex-direction: row;
@@ -268,19 +309,18 @@
             justify-content: center;
             background-color: transparent;
             color: #000000;
-            border: 2px solid #307fc0;
+            border: 0.12em solid #307fc0;
             border-radius: 8px;
-            font-size: 28px;
-            font-size: calc(28px + 1vw);
+            font-size: 1em;
             font-weight: 600;
-            min-width: 26px;
-            min-height: 26px;
-            max-width: 26px;
-            max-height: 26px;
-            min-width: calc(26px + 2.6vw);
-            min-height: calc(26px + 2.6vw);
-            max-width: calc(26px + 2.6vw);
-            max-height: calc(26px + 2.6vw);
+            min-width: 2.3em;
+            min-height: 2.3em;
+            max-width: 2.3em;
+            max-height: 2.3em;
+            /* min-width: calc(28px + 2.6vw);
+            min-height: calc(28px + 2.6vw);
+            max-width: calc(28px + 2.6vw);
+            max-height: calc(28px + 2.6vw); */
             cursor: cell;
             transition: all 2s ease;
         }
@@ -310,46 +350,46 @@
         }
 
         .turn-up {
-            border-top-width: 14px;
+            border-top-width: 0.77em;
             cursor: n-resize;
         }
 
         .turn-down {
-            border-bottom-width: 14px;
+            border-bottom-width: 0.77em;
             cursor: s-resize;
         }
 
         .turn-left {
-            border-left-width: 14px;
+            border-left-width: 0.77em;
             cursor: w-resize;
         }
 
         .turn-right {
-            border-right-width: 14px;
+            border-right-width: 0.77em;
             cursor: e-resize;
         }
 
         .turn-nw {
-            border-top-width: 14px;
-            border-left-width: 14px;
+            border-top-width: 0.77em;
+            border-left-width: 0.77em;
             cursor: nw-resize;
         }
 
         .turn-ne {
-            border-top-width: 14px;
-            border-right-width: 14px;
+            border-top-width: 0.77em;
+            border-right-width: 0.77em;
             cursor: ne-resize;
         }
 
         .turn-sw {
-            border-bottom-width: 14px;
-            border-left-width: 14px;
+            border-bottom-width: 0.77em;
+            border-left-width: 0.77em;
             cursor: sw-resize;
         }
 
         .turn-se {
-            border-bottom-width: 14px;
-            border-right-width: 14px;
+            border-bottom-width: 0.77em;
+            border-right-width: 0.77em;
             cursor: se-resize;
         }
 
@@ -397,9 +437,9 @@
 
         <button id='continue' onclick='startGame("levels", false)' disabled>Continue</button>
 
-        <div id='load-div'>
-            <label id='load-label' for='load-level' class='pseudo-button'>Load level</label>
-            <input id='load-level' type='file' accept='.json' style='opacity: 0;'>
+        <div id='load-div' class='pseudo-button'>
+            <label id='load-label' for='load-level'>Load level</label>
+            <input id='load-level' type='file' accept='.json'>
         </div>
     </div>
 
@@ -410,20 +450,29 @@
         </button>
 
         <div class='editor-only'>
+            <div id='editor-load-div' class='pseudo-button'>
+                <label id='editor-load-label' for='editor-load-level'>Load level</label>
+                <input id='editor-load-level' type='file' accept='.json'>
+            </div>
+
             <a id='save-level-button' class='pseudo-button' href=''>
                 Save level
             </a>
 
-            <div id='editor-grid-size'>
-                <div>
-                    <label for='size-x'>X</label>
-                    <input type='number' id='size-x' min='5' max='100' value='5'>
+            <details>
+                <summary id='editor-tools-summary'>Tools</summary>
+
+                <div id='editor-grid-size'>
+                    <div>
+                        <label for='size-x'>X</label>
+                        <input type='number' id='size-x' min='5' max='100' value='5'>
+                    </div>
+                    <div>
+                        <label for='size-y'>Y</label>
+                        <input type='number' id='size-y' min='5' max='100' value='5'>
+                    </div>
                 </div>
-                <div>
-                    <label for='size-y'>Y</label>
-                    <input type='number' id='size-y' min='5' max='100' value='5'>
-                </div>
-            </div>
+            </details>
         </div>
 
         <div id='container'>
@@ -572,6 +621,8 @@
         let sizeY = document.getElementById('size-y');
         /** @type {HTMLInputElement} */
         let loadLevel = document.getElementById('load-level');
+        /** @type {HTMLInputElement} */
+        let editorLoadLevel = document.getElementById('editor-load-level');
 
         // Variables
         /** @type {boolean} */
@@ -596,6 +647,8 @@
             initSpeed: { x: 0, y: 1 },
             blocks: []
         };
+
+        continueButton.disabled = true;
 
         launchButton.addEventListener('click', function (event) {
             removePlayer();
@@ -630,38 +683,62 @@
             saveLevelButton.href = `data:text/plain;charset=utf-8,${data}`;
         });
 
-        loadLevel.addEventListener('input', async function (event) {
-            await loadLevel.files[0].text().then((data) => {
-                try {
-                    level = JSON.parse(data);
-                    startGame('levels', false);
-                    fillGrid();
-                    loadLevel.value = '';
-                } catch (error) {
-                    alert(`Error while loading the level: ${error}`);
-                }
-            });
+        loadLevel.addEventListener('input', function (event) {
+            loadLevelFromFile(event, this);
+        });
+
+        editorLoadLevel.addEventListener('input', function (event) {
+            loadLevelFromFile(event, this);
         });
 
         sizeX.addEventListener('blur', function (event) {
             level.gridSize.x = clamp(+sizeX.min, +sizeX.value, +sizeX.max);
-            sizeX.value = level.gridSize.x;
             saveGridBlocks();
             fillGrid();
         });
 
         sizeY.addEventListener('blur', function (event) {
             level.gridSize.y = clamp(+sizeY.min, +sizeY.value, +sizeY.max);
-            sizeY.value = level.gridSize.y;
             saveGridBlocks();
             fillGrid();
         });
+
+        /**
+         * @param {InputEvent} event
+         * @param {HTMLInputElement} input
+        */
+        async function loadLevelFromFile(event, input) {
+            await input.files[0].text().then((data) => {
+                try {
+                    level = JSON.parse(data);
+                    fillGrid();
+                    input.value = '';
+                } catch (error) {
+                    alert(`Error while loading the level: ${error}`);
+                    level = {
+                        gridSize: { x: 5, y: 5},
+                        start: { x: 2, y: 2},
+                        initSpeed: { x: 0, y: 1 },
+                        blocks: []
+                    };
+                    fillGrid();
+                }
+                startGame(
+                    input === loadLevel ? 'levels' : 'game',
+                    input === editorLoadLevel
+                );
+            });
+        }
 
         function fillGrid() {
             // Reset everything
             while (grid.hasChildNodes()) grid.lastChild.remove();
             continueButton.disabled = false;
             clearInterval(moveInterval);
+
+            // Set X and Y dimenstions in the editor
+            sizeX.value = level.gridSize.x;
+            sizeY.value = level.gridSize.y;
 
             // Create rows and cells
             for (let y = 0; y < level.gridSize.y; y++) {
@@ -785,6 +862,7 @@
                     level.start.x = x;
                     level.start.y = y;
                     addPlayer();
+                    break; // Never forget `break;` like I did!
                 default:
                     cell.classList.add(type);
                     if (isInEditor) cell.classList.add('protected');
@@ -859,6 +937,7 @@
             if (newCell.classList.contains('wall')) {
                 grid.style.animation = 'lose 0.6s ease';
                 stopGameProcess();
+                removePlayer();
                 addPlayer(true);
                 return;
             }
@@ -867,6 +946,7 @@
             if (newCell.classList.contains('finish')) {
                 grid.style.animation = 'win 1s ease';
                 stopGameProcess();
+                removePlayer();
                 return;
             }
 
