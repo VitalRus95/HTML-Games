@@ -103,6 +103,7 @@
 
         body {
             display: flex;
+            background-color: transparent;
             flex-direction: column;
             margin: auto;
             font-size: 14pt;
@@ -123,15 +124,15 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            background-color: #E1E1E1;
+            background-color: #e1e1e1;
             color: #000000;
-            border: 2px outset #ADADAD;
+            border: 2px outset #adadad;
             font-size: 1em;
             font-weight: 600;
             margin-block: 2px;
+            padding: 2px;
             min-height: 1.7em;
             width: 100%;
-            cursor: pointer;
         }
 
         button:disabled,
@@ -145,8 +146,15 @@
         button:hover,
         .pseudo-button:focus,
         .pseudo-button:hover {
-            background-color: #E5F1FB;
+            background-color: #e5f1fb;
             border-color: #0078D7;
+        }
+
+        details {
+            background-color: #e1e1e1;
+            border: 2px outset #adadad;
+            margin-block: 2px;
+            padding: 2px;
         }
 
         h1, h2, h3 {
@@ -156,10 +164,22 @@
             margin-block: 4px;
         }
 
+        input[type='number'] {
+            background-color: #fababa;
+            font-size: 1em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        input[type='number']:focus,
+        input[type='number']:hover {
+            background-color: #e5f1fb;
+        }
+
         select {
-            background-color: #E1E1E1;
+            background-color: #e1e1e1;
             color: #000000;
-            border: 2px outset #ADADAD;
+            border: 2px outset #adadad;
             border-radius: 0px;
             font-size: 1em;
             margin-block: 2px;
@@ -168,15 +188,20 @@
 
         select:focus,
         select:hover {
-            background-color: #CCE4F7;
+            background-color: #cce4f7;
             color: #000000;
             border-color: #005499;
         }
 
         select:focus > option,
         select:hover > option {
-            background-color: #FFFFFF;
+            background-color: #ffffff;
             color: #000000;
+        }
+
+        summary {
+            font-weight: 600;
+            cursor: pointer;
         }
 
         /* Elements by ID */
@@ -219,17 +244,38 @@
 
         #author:focus,
         #author:hover {
-            background-color: #E5F1FB;
-            border-color: #0078D7;
+            background-color: #e5f1fb;
+            border-color: #0078d7;
         }
 
         #load-div,
         #editor-load-div {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-evenly;
-            column-gap: 8px;
+        }
+
+        #load-level,
+        #editor-load-level {
+            position: absolute;
+            opacity: 0;
+            max-width: 100%;
+        }
+
+        #save-level-button {
+            cursor: default;
+        }
+
+        #shift-all-div {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            column-gap: 2px;
+            font-weight: 600;
             overflow: auto;
+        }
+
+        #shift-all-div > button {
+            width: 2.5em;
+            height: 2em;
             cursor: pointer;
         }
 
@@ -244,31 +290,31 @@
             display: flex;
             flex-direction: column;
             row-gap: 1px;
+            background-color: transparent;
             overflow: auto;
+            margin-block: 4px;
+            padding: 4px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 8px #000000;
+        }
+
+        #editor-div {
+            display: flex;
+            flex-direction: column;
         }
 
         #editor-grid-size {
             display: flex;
             flex-direction: row;
+            align-items: center;
             overflow: auto;
             column-gap: 8px;
             font-weight: 600;
             padding: 2px;
         }
 
-        #size-x,
-        #size-y {
-            background-color: #E1E1E1;
-            font-size: 1em;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        #size-x:focus,
-        #size-x:hover,
-        #size-y:focus,
-        #size-y:hover {
-            background-color: #E5F1FB;
+        #editor-grid-size > div > input[type='number'] {
+            width: 3em;
         }
 
         #blocks-list {
@@ -346,7 +392,7 @@
         .turn-ne,
         .turn-sw,
         .turn-se {
-            border: 2px solid #000000;
+            border: 2px solid #005499;
         }
 
         .turn-up {
@@ -449,7 +495,7 @@
             Back
         </button>
 
-        <div class='editor-only'>
+        <div id='editor-div' class='editor-only'>
             <div id='editor-load-div' class='pseudo-button'>
                 <label id='editor-load-label' for='editor-load-level'>Load level</label>
                 <input id='editor-load-level' type='file' accept='.json'>
@@ -460,18 +506,34 @@
             </a>
 
             <details>
-                <summary id='editor-tools-summary'>Tools</summary>
+                <summary id='editor-tools-summary'>Level settings</summary>
 
+                <!-- Grid size -->
                 <div id='editor-grid-size'>
+                    <span id='grid-size-label'>Grid size:</span>
+
                     <div>
                         <label for='size-x'>X</label>
-                        <input type='number' id='size-x' min='5' max='100' value='5'>
+                        <input type='number' id='size-x' min='5' max='50' value='5'>
                     </div>
                     <div>
                         <label for='size-y'>Y</label>
-                        <input type='number' id='size-y' min='5' max='100' value='5'>
+                        <input type='number' id='size-y' min='5' max='50' value='5'>
                     </div>
                 </div>
+
+                <!-- Shift all -->
+                <div id='shift-all-div'>
+                    <label id='shift-all'>Shift blocks</label>
+
+                    <button id='shift-n' class='turn-up' onclick='shiftAll("N")' >N</button>
+                    <button id='shift-s' class='turn-down' onclick='shiftAll("S")' >S</button>
+                    <button id='shift-e' class='turn-right' onclick='shiftAll("E")' >E</button>
+                    <button id='shift-w' class='turn-left' onclick='shiftAll("W")' >W</button>
+                </div>
+
+                <!-- Player's direction -->
+                <div></div>
             </details>
         </div>
 
@@ -684,11 +746,11 @@
         });
 
         loadLevel.addEventListener('input', function (event) {
-            loadLevelFromFile(event, this);
+            loadLevelFromFile(event, loadLevel);
         });
 
         editorLoadLevel.addEventListener('input', function (event) {
-            loadLevelFromFile(event, this);
+            loadLevelFromFile(event, editorLoadLevel);
         });
 
         sizeX.addEventListener('blur', function (event) {
@@ -711,7 +773,6 @@
             await input.files[0].text().then((data) => {
                 try {
                     level = JSON.parse(data);
-                    fillGrid();
                     input.value = '';
                 } catch (error) {
                     alert(`Error while loading the level: ${error}`);
@@ -721,12 +782,12 @@
                         initSpeed: { x: 0, y: 1 },
                         blocks: []
                     };
+                } finally {
                     fillGrid();
+                    if (input === loadLevel) {
+                        startGame('levels', false);
+                    }
                 }
-                startGame(
-                    input === loadLevel ? 'levels' : 'game',
-                    input === editorLoadLevel
-                );
             });
         }
 
@@ -817,6 +878,29 @@
             }
         }
 
+        /**
+         * @param {string} dir
+        */
+        function shiftAll(dir) {
+            saveGridBlocks();
+            removePlayer();
+
+            /** @type {number} */
+            let x = dir === 'E' ? 1 : dir === 'W' ? -1 : 0;
+            /** @type {number} */
+            let y = dir === 'S' ? 1 : dir === 'N' ? -1 : 0;
+
+            level.start.x = ringClamp(0, level.start.x + x, level.gridSize.x - 1);
+            level.start.y = ringClamp(0, level.start.y + y, level.gridSize.y - 1);
+
+            for (const block of level.blocks) {
+                block.x = ringClamp(0, block.x + x, level.gridSize.x - 1);
+                block.y = ringClamp(0, block.y + y, level.gridSize.y - 1);
+            }
+
+            fillGrid();
+        }
+
         function saveGridBlocks() {
             level.blocks = [];
 
@@ -869,7 +953,6 @@
                     break;
             }
             
-            grid.style.animation = 'none';
             switchScene('blocks', 'game');
         }
 
@@ -1013,10 +1096,12 @@
         function pauseGame() {
             if (isInEditor) saveGridBlocks();
             switchScene('game', isInEditor ? 'menu' : 'levels');
-            grid.style.animation = 'none';
         }
 
         function switchScene(from, to) {
+            if (from === to) return;
+            if (from === 'game') grid.style.animation = 'none';
+
             try {
                 document.getElementById(from).style.display = 'none';
                 document.getElementById(to).style.display = 'flex';
@@ -1059,6 +1144,12 @@
                 langTags: ['en', 'en-AU', 'en-BZ', 'en-CA', 'en-CB', 'en-GB', 'en-IE', 'en-JM', 'en-NZ', 'en-PH', 'en-TT', 'en-US', 'en-ZA', 'en-ZW'],
                 elements: [
                     {
+                        "id": "exportLang",
+                        "childNodesTexts": [
+                            "Export texts for translation"
+                        ]
+                    },
+                    {
                         "id": "title",
                         "childNodesTexts": [
                             "Game"
@@ -1068,6 +1159,12 @@
                         "id": "start-button",
                         "childNodesTexts": [
                             "Start game"
+                        ]
+                    },
+                    {
+                        "id": "editor-button",
+                        "childNodesTexts": [
+                            "Level editor"
                         ]
                     },
                     {
@@ -1083,9 +1180,197 @@
                         ]
                     },
                     {
+                        "id": "author",
+                        "childNodesTexts": [
+                            "Made by ",
+                            "Vitaly Pavlovich Ulyanov (Vital)",
+                            "."
+                        ]
+                    },
+                    {
+                        "id": "levels-back",
+                        "childNodesTexts": [
+                            "Back"
+                        ]
+                    },
+                    {
+                        "id": "levels-title",
+                        "childNodesTexts": [
+                            "Levels"
+                        ]
+                    },
+                    {
+                        "id": "continue",
+                        "childNodesTexts": [
+                            "Continue"
+                        ]
+                    },
+                    {
+                        "id": "load-label",
+                        "childNodesTexts": [
+                            "Load level"
+                        ]
+                    },
+                    {
                         "id": "game-back",
                         "childNodesTexts": [
                             "Back"
+                        ]
+                    },
+                    {
+                        "id": "editor-load-label",
+                        "childNodesTexts": [
+                            "Load level"
+                        ]
+                    },
+                    {
+                        "id": "save-level-button",
+                        "childNodesTexts": [
+                            "Save level"
+                        ]
+                    },
+                    {
+                        "id": "editor-tools-summary",
+                        "childNodesTexts": [
+                            "Level settings"
+                        ]
+                    },
+                    {
+                        "id": "grid-size-label",
+                        "childNodesTexts": [
+                            "Grid size:"
+                        ]
+                    },
+                    {
+                        "id": "shift-all",
+                        "childNodesTexts": [
+                            "Shift blocks"
+                        ]
+                    },
+                    {
+                        "id": "shift-n",
+                        "childNodesTexts": [
+                            "N"
+                        ]
+                    },
+                    {
+                        "id": "shift-s",
+                        "childNodesTexts": [
+                            "S"
+                        ]
+                    },
+                    {
+                        "id": "shift-e",
+                        "childNodesTexts": [
+                            "E"
+                        ]
+                    },
+                    {
+                        "id": "shift-w",
+                        "childNodesTexts": [
+                            "W"
+                        ]
+                    },
+                    {
+                        "id": "launch",
+                        "childNodesTexts": [
+                            "Start"
+                        ]
+                    },
+                    {
+                        "id": "stop",
+                        "childNodesTexts": [
+                            "Stop"
+                        ]
+                    },
+                    {
+                        "id": "reset",
+                        "childNodesTexts": [
+                            "Reset"
+                        ]
+                    },
+                    {
+                        "id": "blocks-back",
+                        "childNodesTexts": [
+                            "Return to game"
+                        ]
+                    },
+                    {
+                        "id": "blocks-title",
+                        "childNodesTexts": [
+                            "Blocks"
+                        ]
+                    },
+                    {
+                        "id": "blocks-player",
+                        "childNodesTexts": [
+                            "Player"
+                        ]
+                    },
+                    {
+                        "id": "blocks-finish",
+                        "childNodesTexts": [
+                            "Finish"
+                        ]
+                    },
+                    {
+                        "id": "blocks-empty",
+                        "childNodesTexts": [
+                            "Empty"
+                        ]
+                    },
+                    {
+                        "id": "blocks-wall",
+                        "childNodesTexts": [
+                            "Wall"
+                        ]
+                    },
+                    {
+                        "id": "blocks-n",
+                        "childNodesTexts": [
+                            "Turn N"
+                        ]
+                    },
+                    {
+                        "id": "blocks-s",
+                        "childNodesTexts": [
+                            "Turn S"
+                        ]
+                    },
+                    {
+                        "id": "blocks-w",
+                        "childNodesTexts": [
+                            "Turn W"
+                        ]
+                    },
+                    {
+                        "id": "blocks-e",
+                        "childNodesTexts": [
+                            "Turn E"
+                        ]
+                    },
+                    {
+                        "id": "blocks-nw",
+                        "childNodesTexts": [
+                            "Turn NW"
+                        ]
+                    },
+                    {
+                        "id": "blocks-ne",
+                        "childNodesTexts": [
+                            "Turn NE"
+                        ]
+                    },
+                    {
+                        "id": "blocks-sw",
+                        "childNodesTexts": [
+                            "Turn SW"
+                        ]
+                    },
+                    {
+                        "id": "blocks-se",
+                        "childNodesTexts": [
+                            "Turn SE"
                         ]
                     },
                     {
@@ -1111,14 +1396,6 @@
                         "childNodesTexts": [
                             "About"
                         ]
-                    },
-                    {
-                        "id": "author",
-                        "childNodesTexts": [
-                            "Made by ",
-                            "Vitaly Pavlovich Ulyanov (Vital)",
-                            "."
-                        ]
                     }
                 ]
             },
@@ -1126,6 +1403,12 @@
                 name: 'Русский [Виталий Ульянов]',
                 langTags: ['ru', 'ru-RU'],
                 elements: [
+                    {
+                        "id": "exportLang",
+                        "childNodesTexts": [
+                            "Экспорт текстов для перевода"
+                        ]
+                    },
                     {
                         "id": "title",
                         "childNodesTexts": [
@@ -1139,6 +1422,12 @@
                         ]
                     },
                     {
+                        "id": "editor-button",
+                        "childNodesTexts": [
+                            "Редактор уровней"
+                        ]
+                    },
+                    {
                         "id": "settings-button",
                         "childNodesTexts": [
                             "Настройки"
@@ -1151,9 +1440,197 @@
                         ]
                     },
                     {
+                        "id": "author",
+                        "childNodesTexts": [
+                            "Автор — ",
+                            "Виталий Павлович Ульянов (Vital)",
+                            "."
+                        ]
+                    },
+                    {
+                        "id": "levels-back",
+                        "childNodesTexts": [
+                            "Назад"
+                        ]
+                    },
+                    {
+                        "id": "levels-title",
+                        "childNodesTexts": [
+                            "Уровни"
+                        ]
+                    },
+                    {
+                        "id": "continue",
+                        "childNodesTexts": [
+                            "Продолжить"
+                        ]
+                    },
+                    {
+                        "id": "load-label",
+                        "childNodesTexts": [
+                            "Загрузить уровень"
+                        ]
+                    },
+                    {
                         "id": "game-back",
                         "childNodesTexts": [
                             "Назад"
+                        ]
+                    },
+                    {
+                        "id": "editor-load-label",
+                        "childNodesTexts": [
+                            "Загрузить уровень"
+                        ]
+                    },
+                    {
+                        "id": "save-level-button",
+                        "childNodesTexts": [
+                            "Сохранить уровень"
+                        ]
+                    },
+                    {
+                        "id": "editor-tools-summary",
+                        "childNodesTexts": [
+                            "Настройки уровня"
+                        ]
+                    },
+                    {
+                        "id": "grid-size-label",
+                        "childNodesTexts": [
+                            "Размер сетки:"
+                        ]
+                    },
+                    {
+                        "id": "shift-all",
+                        "childNodesTexts": [
+                            "Сдвиг блоков"
+                        ]
+                    },
+                    {
+                        "id": "shift-n",
+                        "childNodesTexts": [
+                            "С"
+                        ]
+                    },
+                    {
+                        "id": "shift-s",
+                        "childNodesTexts": [
+                            "Ю"
+                        ]
+                    },
+                    {
+                        "id": "shift-e",
+                        "childNodesTexts": [
+                            "В"
+                        ]
+                    },
+                    {
+                        "id": "shift-w",
+                        "childNodesTexts": [
+                            "З"
+                        ]
+                    },
+                    {
+                        "id": "launch",
+                        "childNodesTexts": [
+                            "Пуск"
+                        ]
+                    },
+                    {
+                        "id": "stop",
+                        "childNodesTexts": [
+                            "Стоп"
+                        ]
+                    },
+                    {
+                        "id": "reset",
+                        "childNodesTexts": [
+                            "Сброс"
+                        ]
+                    },
+                    {
+                        "id": "blocks-back",
+                        "childNodesTexts": [
+                            "Возврат к игре"
+                        ]
+                    },
+                    {
+                        "id": "blocks-title",
+                        "childNodesTexts": [
+                            "Блоки"
+                        ]
+                    },
+                    {
+                        "id": "blocks-player",
+                        "childNodesTexts": [
+                            "Игрок"
+                        ]
+                    },
+                    {
+                        "id": "blocks-finish",
+                        "childNodesTexts": [
+                            "Финиш"
+                        ]
+                    },
+                    {
+                        "id": "blocks-empty",
+                        "childNodesTexts": [
+                            "Пусто"
+                        ]
+                    },
+                    {
+                        "id": "blocks-wall",
+                        "childNodesTexts": [
+                            "Стена"
+                        ]
+                    },
+                    {
+                        "id": "blocks-n",
+                        "childNodesTexts": [
+                            "На С"
+                        ]
+                    },
+                    {
+                        "id": "blocks-s",
+                        "childNodesTexts": [
+                            "На Ю"
+                        ]
+                    },
+                    {
+                        "id": "blocks-w",
+                        "childNodesTexts": [
+                            "На З"
+                        ]
+                    },
+                    {
+                        "id": "blocks-e",
+                        "childNodesTexts": [
+                            "На В"
+                        ]
+                    },
+                    {
+                        "id": "blocks-nw",
+                        "childNodesTexts": [
+                            "На СЗ"
+                        ]
+                    },
+                    {
+                        "id": "blocks-ne",
+                        "childNodesTexts": [
+                            "На СВ"
+                        ]
+                    },
+                    {
+                        "id": "blocks-sw",
+                        "childNodesTexts": [
+                            "На ЮЗ"
+                        ]
+                    },
+                    {
+                        "id": "blocks-se",
+                        "childNodesTexts": [
+                            "На ЮВ"
                         ]
                     },
                     {
@@ -1178,14 +1655,6 @@
                         "id": "about-title",
                         "childNodesTexts": [
                             "Об игре"
-                        ]
-                    },
-                    {
-                        "id": "author",
-                        "childNodesTexts": [
-                            "Автор — ",
-                            "Виталий Павлович Ульянов (Vital)",
-                            "."
                         ]
                     }
                 ]
