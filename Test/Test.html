@@ -429,9 +429,15 @@
             transition: all 2s ease;
         }
 
+        .cell:focus {
+            box-shadow: 0px 0px 0px 0.3em #9d0000;
+            outline-style: none;
+            transition: all 0s ease;
+        }
+
         .player {
             background-color: #ff4343;
-            border: 0.12em solid #000000;
+            border: 0.12em solid #590000;
             transform: scale(0.9);
             transition: all 0s;
             cursor: progress;
@@ -544,22 +550,22 @@
 <body>
     <!-- <a href='' id='exportLang' download='TranslationTemplate.json' onclick='exportTranslationTemplate()'>Export texts for translation</a> -->
     
-    <!-- Main menu -->
-    <div id='menu'>
+    <!-- Main menu div -->
+    <div id='menu' tabindex='1'>
         <h1 id='title'>Game</h1>
 
-        <select id='lang'></select>
+        <select id='lang' tabindex='0'></select>
 
-        <button id='start-button' onclick='switchScene("menu", "levels")'>
+        <button id='start-button' tabindex='1' onclick='switchScene("menu", "levels")'>
             Start game
         </button>
-        <button id='editor-button' onclick='startGame("menu", true)'>
+        <button id='editor-button' tabindex='1' onclick='startGame("menu", true)'>
             Level editor
         </button>
-        <button id='settings-button' onclick='switchScene("menu", "settings")'>
+        <button id='settings-button' tabindex='1' onclick='switchScene("menu", "settings")'>
             Settings
         </button>
-        <button id='about-button' onclick='switchScene("menu", "about")'>
+        <button id='about-button' tabindex='1' onclick='switchScene("menu", "about")'>
             About
         </button>
 
@@ -570,7 +576,7 @@
     </div>
 
     <!-- Levels div -->
-    <div id='levels'>
+    <div id='levels' tabindex='0'>
         <button id='levels-back' onclick='switchScene("levels", "menu")'>
             Back
         </button>
@@ -586,11 +592,12 @@
     </div>
 
     <!-- Game div -->
-    <div id='game'>
+    <div id='game' tabindex='0'>
         <button id='game-back' onclick='pauseGame()'>
             Back
         </button>
 
+        <!-- Editor -->
         <div id='editor-div' class='editor-only'>
             <div id='editor-load-div' class='pseudo-button'>
                 <label id='editor-load-label' for='editor-load-level'>Load level</label>
@@ -602,7 +609,7 @@
             </a>
 
             <!-- Level settings -->
-            <details>
+            <details open>
                 <summary id='editor-tools-summary'>Level settings</summary>
 
                 <!-- Grid size -->
@@ -621,16 +628,18 @@
 
                 <!-- Player vector -->
                 <div id='editor-vector'>
-                    <span id='vector-label'>Player's vector:</span>
+                    <label for='vector-menu' id='vector-label'>Player's vector:</label>
 
-                    <div>
-                        <label for='vector-x'>X</label>
-                        <input type='number' id='vector-x' min='-1' max='1' value='0'>
-                    </div>
-                    <div>
-                        <label for='vector-y'>Y</label>
-                        <input type='number' id='vector-y' min='-1' max='1' value='1'>
-                    </div>
+                    <select name='vector-select' id='vector-menu'>
+                        <option value='dir-up'>North (N)</option>
+                        <option value='dir-down' selected>South (S)</option>
+                        <option value='dir-right'>East (E)</option>
+                        <option value='dir-left'>West (W)</option>
+                        <option value='dir-ne'>Northeast (NE)</option>
+                        <option value='dir-se'>Southeast (SE)</option>
+                        <option value='dir-sw'>Southwest (SW)</option>
+                        <option value='dir-nw'>Northwest (NW)</option>
+                    </select>
                 </div>
 
                 <!-- Shift all -->
@@ -643,8 +652,11 @@
                     <button id='shift-w' class='turn-left' onclick='shiftAll("W")' >W</button>
                 </div>
 
-                <!-- Player's direction -->
-                <div></div>
+                <!-- Copy last type on click -->
+                <div>
+                    <input type='checkbox' id='copy-last'>
+                    <label for='copy-last' id='copy-last-label'>Copy last block on click</label>
+                </div>
             </details>
         </div>
 
@@ -660,7 +672,7 @@
     </div>
 
     <!-- Blocks div -->
-    <div id='blocks'>
+    <div id='blocks' tabindex='0'>
         <button id='blocks-back' onclick='switchScene("blocks", "game")'>
             Return to game
         </button>
@@ -668,70 +680,70 @@
         <h2 id='blocks-title'>Blocks</h2>
 
         <div id='blocks-list'>
-            <button id='blocks-player' class='editor-only' onclick='setCell(selected.x, selected.y, "player")'>
+            <button id='blocks-player' class='editor-only' onclick='setCellAndReturn(selected.x, selected.y, "player")'>
                 Player
                 <div class='cell player'></div>
             </button>
 
-            <button id='blocks-finish' class='editor-only' onclick='setCell(selected.x, selected.y, "finish")'>
+            <button id='blocks-finish' class='editor-only' onclick='setCellAndReturn(selected.x, selected.y, "finish")'>
                 Finish
                 <div class='cell finish'></div>
             </button>
 
-            <button id='blocks-empty' onclick='setCell(selected.x, selected.y, "cell")'>
+            <button id='blocks-empty' onclick='setCellAndReturn(selected.x, selected.y, "cell")'>
                 Empty
                 <div class='cell'></div>
             </button>
 
-            <button id='blocks-wall' class='editor-only' onclick='setCell(selected.x, selected.y, "wall")'>
+            <button id='blocks-wall' class='editor-only' onclick='setCellAndReturn(selected.x, selected.y, "wall")'>
                 Wall
                 <div class='cell wall'></div>
             </button>
 
-            <button id='blocks-n' onclick='setCell(selected.x, selected.y, "turn-up")'>
+            <button id='blocks-n' onclick='setCellAndReturn(selected.x, selected.y, "turn-up")'>
                 Turn N
                 <div class='cell turn-up'></div>
             </button>
 
-            <button id='blocks-s' onclick='setCell(selected.x, selected.y, "turn-down")'>
+            <button id='blocks-s' onclick='setCellAndReturn(selected.x, selected.y, "turn-down")'>
                 Turn S
                 <div class='cell turn-down'></div>
             </button>
 
-            <button id='blocks-w' onclick='setCell(selected.x, selected.y, "turn-left")'>
-                Turn W
-                <div class='cell turn-left'></div>
-            </button>
-
-            <button id='blocks-e' onclick='setCell(selected.x, selected.y, "turn-right")'>
+            <button id='blocks-e' onclick='setCellAndReturn(selected.x, selected.y, "turn-right")'>
                 Turn E
                 <div class='cell turn-right'></div>
             </button>
 
-            <button id='blocks-nw' onclick='setCell(selected.x, selected.y, "turn-nw")'>
-                Turn NW
-                <div class='cell turn-nw'></div>
+            <button id='blocks-w' onclick='setCellAndReturn(selected.x, selected.y, "turn-left")'>
+                Turn W
+                <div class='cell turn-left'></div>
             </button>
 
-            <button id='blocks-ne' onclick='setCell(selected.x, selected.y, "turn-ne")'>
+            <button id='blocks-ne' onclick='setCellAndReturn(selected.x, selected.y, "turn-ne")'>
                 Turn NE
                 <div class='cell turn-ne'></div>
             </button>
 
-            <button id='blocks-sw' onclick='setCell(selected.x, selected.y, "turn-sw")'>
+            <button id='blocks-se' onclick='setCellAndReturn(selected.x, selected.y, "turn-se")'>
+                Turn SE
+                <div class='cell turn-se'></div>
+            </button>
+
+            <button id='blocks-sw' onclick='setCellAndReturn(selected.x, selected.y, "turn-sw")'>
                 Turn SW
                 <div class='cell turn-sw'></div>
             </button>
 
-            <button id='blocks-se' onclick='setCell(selected.x, selected.y, "turn-se")'>
-                Turn SE
-                <div class='cell turn-se'></div>
+            <button id='blocks-nw' onclick='setCellAndReturn(selected.x, selected.y, "turn-nw")'>
+                Turn NW
+                <div class='cell turn-nw'></div>
             </button>
         </div>
     </div>
 
     <!-- Settings div -->
-    <div id='settings'>
+    <div id='settings' tabindex='0'>
         <button id='settings-back' onclick='switchScene("settings", "menu")'>
             Back
         </button>
@@ -740,7 +752,7 @@
     </div>
 
     <!-- About div -->
-    <div id='about'>
+    <div id='about' tabindex='0'>
         <button id='about-back' onclick='switchScene("about", "menu")'>
             Back
         </button>
@@ -751,7 +763,18 @@
     <script>
         // Elements
         /** @type {HTMLDivElement} */
+        let menu = document.getElementById('menu');
+        /** @type {HTMLDivElement} */
+        let levels = document.getElementById('levels');
+        /** @type {HTMLDivElement} */
         let game = document.getElementById('game');
+        /** @type {HTMLDivElement} */
+        let blocks = document.getElementById('blocks');
+        /** @type {HTMLDivElement} */
+        let settings = document.getElementById('settings');
+        /** @type {HTMLDivElement} */
+        let about = document.getElementById('about');
+
         /** @type {HTMLDivElement} */
         let grid = document.getElementById('grid');
         /** @type {HTMLButtonElement} */
@@ -762,16 +785,17 @@
         let stopButton = document.getElementById('stop');
         /** @type {HTMLButtonElement} */
         let resetButton = document.getElementById('reset');
+
         /** @type {HTMLAnchorElement} */
         let saveLevelButton = document.getElementById('save-level-button');
         /** @type {HTMLInputElement} */
         let sizeX = document.getElementById('size-x');
         /** @type {HTMLInputElement} */
         let sizeY = document.getElementById('size-y');
+        /** @type {HTMLSelectElement} */
+        let vectorMenu = document.getElementById('vector-menu');
         /** @type {HTMLInputElement} */
-        let vectorX = document.getElementById('vector-x');
-        /** @type {HTMLInputElement} */
-        let vectorY = document.getElementById('vector-y');
+        let copyLast = document.getElementById('copy-last');
         /** @type {HTMLInputElement} */
         let loadLevel = document.getElementById('load-level');
         /** @type {HTMLInputElement} */
@@ -804,7 +828,27 @@
         };
 
         continueButton.disabled = true;
+        vectorMenu.value = 'dir-down';
+        copyLast.checked = false;
 
+        // Exiting on pressing Escape
+        levels.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') switchScene('levels', 'menu');
+        });
+        blocks.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') switchScene('blocks', 'game');
+        });
+        game.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') switchScene('game', isInEditor ? 'menu' : 'levels');
+        });
+        settings.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') switchScene('settings', 'menu');
+        });
+        about.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') switchScene('about', 'menu');
+        });
+
+        // Other events
         launchButton.addEventListener('click', function (event) {
             removePlayer();
             addPlayer(true);
@@ -854,14 +898,6 @@
             sizeY.focus();
         });
 
-        vectorX.addEventListener('click', function (event) {
-            vectorX.focus();
-        });
-
-        vectorY.addEventListener('click', function (event) {
-            vectorY.focus();
-        });
-
         sizeX.addEventListener('blur', function (event) {
             level.gridSize.x = clamp(+sizeX.min, +sizeX.value, +sizeX.max);
             saveGridBlocks();
@@ -874,14 +910,50 @@
             fillGrid();
         });
 
-        vectorX.addEventListener('blur', function (event) {
-            level.initSpeed.x = clamp(+vectorX.min, +vectorX.value, +vectorX.max);
+        vectorMenu.addEventListener('change', function (event) {
+            removePlayer();
+            
+            switch (vectorMenu.value) {
+                case 'dir-up':
+                    level.initSpeed.x = 0;
+                    level.initSpeed.y = -1;
+                    break;
+                case 'dir-down':
+                    level.initSpeed.x = 0;
+                    level.initSpeed.y = 1;
+                    break;
+                case 'dir-right':
+                    level.initSpeed.x = 1;
+                    level.initSpeed.y = 0;
+                    break;
+                case 'dir-left':
+                    level.initSpeed.x = -1;
+                    level.initSpeed.y = 0;
+                    break;
+                case 'dir-ne':
+                    level.initSpeed.x = 1;
+                    level.initSpeed.y = -1;
+                    break;
+                case 'dir-se':
+                    level.initSpeed.x = 1;
+                    level.initSpeed.y = 1;
+                    break;
+                case 'dir-sw':
+                    level.initSpeed.x = -1;
+                    level.initSpeed.y = 1;
+                    break;
+                case 'dir-nw':
+                    level.initSpeed.x = -1;
+                    level.initSpeed.y = -1;
+                    break;
+                default:
+                    break;
+            }
+
+            addPlayer(true);
         });
 
-        vectorY.addEventListener('blur', function (event) {
-            level.initSpeed.y = clamp(+vectorY.min, +vectorY.value, +vectorY.max);
-        });
-
+        // Functions
         /**
          * @param {InputEvent} event
          * @param {HTMLInputElement} input
@@ -904,6 +976,7 @@
                     if (input === loadLevel) {
                         startGame('levels', false);
                     }
+                    getCell(player.x, player.y)?.focus();
                 }
             });
         }
@@ -938,41 +1011,68 @@
                         switch (event.key) {
                             case 'ArrowUp':
                                 event.preventDefault();
-                                getCell(x, y - 1)?.focus();
+                                getCell(
+                                    x,
+                                    ringClamp(0, y - 1, level.gridSize.y - 1)
+                                )?.focus();
                                 break;
                             case 'ArrowDown':
                                 event.preventDefault();
-                                getCell(x, y + 1)?.focus();
+                                getCell(
+                                    x,
+                                    ringClamp(0, y + 1, level.gridSize.y - 1)
+                                )?.focus();
                                 break;
                             case 'ArrowLeft':
                                 event.preventDefault();
-                                getCell(x - 1, y)?.focus();
+                                getCell(
+                                    ringClamp(0, x - 1, level.gridSize.x - 1),
+                                    y
+                                )?.focus();
                                 break;
                             case 'ArrowRight':
                                 event.preventDefault();
-                                getCell(x + 1, y)?.focus();
+                                getCell(
+                                    ringClamp(0, x + 1, level.gridSize.x - 1),
+                                    y
+                                )?.focus();
                                 break;
                             case 'Enter':
-                            case 'Space':
+                            case ' ':
                                 event.preventDefault();
                                 if (isCellEditable(x, y)) {
-                                    switchScene('game', 'blocks');
-                                    selected.x = x;
-                                    selected.y = y;
+                                    if (copyLast.checked
+                                        && lastCellType
+                                        && !cell.classList.contains(lastCellType)
+                                    ) {
+                                        setCell(x, y, lastCellType);
+                                    } else {
+                                        switchScene('game', 'blocks');
+                                        selected.x = x;
+                                        selected.y = y;
+                                    }
                                 }
                                 break;
                             default:
                                 break;
                         }
                     });
-                    cell.addEventListener('mouseup', function (event) {
+                    cell.addEventListener('mousedown', function (event) {
                         event.preventDefault();
                         if (event.button === 2) { // Right mouse key
                             setCell(x, y, 'cell');
                         } else if (isCellEditable(x, y)) {
-                            switchScene('game', 'blocks');
+                            if (copyLast.checked 
+                                && lastCellType
+                                && !cell.classList.contains(lastCellType)
+                            ) {
+                                setCell(x, y, lastCellType);
+                                cell.focus();
+                            } else {
+                                switchScene('game', 'blocks');
                                 selected.x = x;
                                 selected.y = y;
+                            }
                         }
                     });
                     cell.addEventListener('mouseenter', function (event) {
@@ -1075,12 +1175,25 @@
                     break;
             }
             
-            switchScene('blocks', 'game');
-            if (type !== 'player' && type !== 'finish') {
+            if (type !== 'player'
+                && type !== 'finish'
+                && type !== 'cell'
+            ) {
                 lastCellType = type;
             } else {
                 lastCellType = null;
             }
+        }
+
+        /**
+         * @param {number} x
+         * @param {number} y
+         * @param {string} type
+        */
+        function setCellAndReturn(x, y, type) {
+            setCell(x, y, type);
+            switchScene('blocks', 'game');
+            getCell(x, y)?.focus();
         }
 
         /**
@@ -1113,9 +1226,8 @@
 
         /**
          * @param {boolean} resetPosition
-         * @param {string} direction
         */
-        function addPlayer(resetPosition, direction) {
+        function addPlayer(resetPosition) {
             if (resetPosition) {
                 player.x = level.start.x;
                 player.y = level.start.y;
@@ -1254,8 +1366,13 @@
             try {
                 document.getElementById(from).style.display = 'none';
                 document.getElementById(to).style.display = 'flex';
+                document.getElementById(to).focus();
             } catch (error) {
                 console.log(error);
+            }
+
+            if (to === 'game') {
+                getCell(selected.x, selected.y)?.focus();
             }
         }
 
@@ -1391,6 +1508,25 @@
                         ]
                     },
                     {
+                        "id": "vector-label",
+                        "childNodesTexts": [
+                            "Player's vector:"
+                        ]
+                    },
+                    {
+                        "id": "vector-menu",
+                        "childNodesTexts": [
+                            "North (N)",
+                            "South (S)",
+                            "East (E)",
+                            "West (W)",
+                            "Northeast (NE)",
+                            "Southeast (SE)",
+                            "Southwest (SW)",
+                            "Northwest (NW)"
+                        ]
+                    },
+                    {
                         "id": "shift-all",
                         "childNodesTexts": [
                             "Shift blocks"
@@ -1418,6 +1554,12 @@
                         "id": "shift-w",
                         "childNodesTexts": [
                             "W"
+                        ]
+                    },
+                    {
+                        "id": "copy-last-label",
+                        "childNodesTexts": [
+                            "Copy last block on click"
                         ]
                     },
                     {
@@ -1487,21 +1629,15 @@
                         ]
                     },
                     {
-                        "id": "blocks-w",
-                        "childNodesTexts": [
-                            "Turn W"
-                        ]
-                    },
-                    {
                         "id": "blocks-e",
                         "childNodesTexts": [
                             "Turn E"
                         ]
                     },
                     {
-                        "id": "blocks-nw",
+                        "id": "blocks-w",
                         "childNodesTexts": [
-                            "Turn NW"
+                            "Turn W"
                         ]
                     },
                     {
@@ -1511,15 +1647,21 @@
                         ]
                     },
                     {
+                        "id": "blocks-se",
+                        "childNodesTexts": [
+                            "Turn SE"
+                        ]
+                    },
+                    {
                         "id": "blocks-sw",
                         "childNodesTexts": [
                             "Turn SW"
                         ]
                     },
                     {
-                        "id": "blocks-se",
+                        "id": "blocks-nw",
                         "childNodesTexts": [
-                            "Turn SE"
+                            "Turn NW"
                         ]
                     },
                     {
@@ -1651,6 +1793,25 @@
                         ]
                     },
                     {
+                        "id": "vector-label",
+                        "childNodesTexts": [
+                            "Вектор игрока:"
+                        ]
+                    },
+                    {
+                        "id": "vector-menu",
+                        "childNodesTexts": [
+                            "Север (С)",
+                            "Юг (Ю)",
+                            "Восток (В)",
+                            "Запад (З)",
+                            "Северо-восток (СВ)",
+                            "Юго-восток (ЮВ)",
+                            "Юго-запад (ЮЗ)",
+                            "Северо-запад (СЗ)"
+                        ]
+                    },
+                    {
                         "id": "shift-all",
                         "childNodesTexts": [
                             "Сдвиг блоков"
@@ -1678,6 +1839,12 @@
                         "id": "shift-w",
                         "childNodesTexts": [
                             "З"
+                        ]
+                    },
+                    {
+                        "id": "copy-last-label",
+                        "childNodesTexts": [
+                            "Нажатие копирует прошлый блок"
                         ]
                     },
                     {
@@ -1747,21 +1914,15 @@
                         ]
                     },
                     {
-                        "id": "blocks-w",
-                        "childNodesTexts": [
-                            "На З"
-                        ]
-                    },
-                    {
                         "id": "blocks-e",
                         "childNodesTexts": [
                             "На В"
                         ]
                     },
                     {
-                        "id": "blocks-nw",
+                        "id": "blocks-w",
                         "childNodesTexts": [
-                            "На СЗ"
+                            "На З"
                         ]
                     },
                     {
@@ -1771,15 +1932,21 @@
                         ]
                     },
                     {
+                        "id": "blocks-se",
+                        "childNodesTexts": [
+                            "На ЮВ"
+                        ]
+                    },
+                    {
                         "id": "blocks-sw",
                         "childNodesTexts": [
                             "На ЮЗ"
                         ]
                     },
                     {
-                        "id": "blocks-se",
+                        "id": "blocks-nw",
                         "childNodesTexts": [
-                            "На ЮВ"
+                            "На СЗ"
                         ]
                     },
                     {
