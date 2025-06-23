@@ -108,8 +108,11 @@
             margin: auto;
             font-size: 14pt;
             min-width: 40%;
-            width: fit-content;
             max-width: 90%;
+        }
+
+        @media (min-width: 720px) {
+            body { max-width: 50%; }
         }
 
         a {
@@ -132,7 +135,6 @@
             margin-block: 2px;
             padding: 2px;
             min-height: 1.7em;
-            width: 100%;
         }
 
         button:disabled,
@@ -177,18 +179,19 @@
         }
 
         select {
-            background-color: #e1e1e1;
+            background-color: #befdd6;
             color: #000000;
             border: 2px outset #adadad;
             border-radius: 0px;
             font-size: 1em;
             margin-block: 2px;
-            height: 1.6em;
+            padding-inline: 4px;
+            min-height: 1.7em;
         }
 
         select:focus,
         select:hover {
-            background-color: #cce4f7;
+            background-color: #e5f1fb;
             color: #000000;
             border-color: #005499;
         }
@@ -296,6 +299,7 @@
             padding: 4px;
             border-radius: 8px;
             box-shadow: 0px 0px 8px #000000;
+            max-height: 70vh;
         }
 
         #editor-div {
@@ -303,17 +307,27 @@
             flex-direction: column;
         }
 
-        #editor-grid-size {
+        #editor-grid-size,
+        #editor-vector {
             display: flex;
             flex-direction: row;
             align-items: center;
             overflow: auto;
-            column-gap: 8px;
+            column-gap: 6px;
+            margin-block: 4px;
             font-weight: 600;
-            padding: 2px;
         }
 
-        #editor-grid-size > div > input[type='number'] {
+        #editor-grid-size > div,
+        #editor-vector > div {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            column-gap: 2px;
+        }
+
+        #editor-grid-size > div > input[type='number'],
+        #editor-vector > div > input[type='number'] {
             width: 3em;
         }
 
@@ -321,14 +335,58 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
-            justify-content: space-evenly;
-            column-gap: 8px;
-            row-gap: 8px;
+            column-gap: 4px;
+            row-gap: 4px;
             overflow: auto;
         }
 
-        #blocks-list > span {
-            justify-items: center;
+        #blocks-list > button {
+            column-gap: 4px;
+            min-width: 15%;
+            flex-grow: 1;
+        }
+
+        #blocks-list > button > div {
+            min-width: 1.8em;
+            min-height: 1.8em;
+            max-width: 1.8em;
+            max-height: 1.8em;
+        }
+
+        #blocks-list > button > .turn-up {
+            border-top-width: 0.6em;
+        }
+
+        #blocks-list > button > .turn-down {
+            border-bottom-width: 0.6em;
+        }
+
+        #blocks-list > button > .turn-left {
+            border-left-width: 0.6em;
+        }
+
+        #blocks-list > button > .turn-right {
+            border-right-width: 0.6em;
+        }
+
+        #blocks-list > button > .turn-nw {
+            border-top-width: 0.6em;
+            border-left-width: 0.6em;
+        }
+
+        #blocks-list > button > .turn-ne {
+            border-top-width: 0.6em;
+            border-right-width: 0.6em;
+        }
+
+        #blocks-list > button > .turn-sw {
+            border-bottom-width: 0.6em;
+            border-left-width: 0.6em;
+        }
+
+        #blocks-list > button > .turn-se {
+            border-bottom-width: 0.6em;
+            border-right-width: 0.6em;
         }
 
         /* Classes */
@@ -337,6 +395,10 @@
             flex-direction: row;
             overflow: auto;
             column-gap: 4px;
+        }
+
+        .buttons-div > button {
+            width: 100%;
         }
 
         .editor-only {
@@ -363,20 +425,52 @@
             min-height: 2.3em;
             max-width: 2.3em;
             max-height: 2.3em;
-            /* min-width: calc(28px + 2.6vw);
-            min-height: calc(28px + 2.6vw);
-            max-width: calc(28px + 2.6vw);
-            max-height: calc(28px + 2.6vw); */
             cursor: cell;
             transition: all 2s ease;
         }
 
         .player {
             background-color: #ff4343;
-            border-color: #000000;
+            border: 0.12em solid #000000;
             transform: scale(0.9);
             transition: all 0s;
             cursor: progress;
+        }
+
+        .dir-up {
+            border-top-width: 0.77em;
+        }
+
+        .dir-down {
+            border-bottom-width: 0.77em;
+        }
+
+        .dir-left {
+            border-left-width: 0.77em;
+        }
+
+        .dir-right {
+            border-right-width: 0.77em;
+        }
+
+        .dir-nw {
+            border-top-width: 0.77em;
+            border-left-width: 0.77em;
+        }
+
+        .dir-ne {
+            border-top-width: 0.77em;
+            border-right-width: 0.77em;
+        }
+
+        .dir-sw {
+            border-bottom-width: 0.77em;
+            border-left-width: 0.77em;
+        }
+
+        .dir-se {
+            border-bottom-width: 0.77em;
+            border-right-width: 0.77em;
         }
 
         .wall {
@@ -392,7 +486,7 @@
         .turn-ne,
         .turn-sw,
         .turn-se {
-            border: 2px solid #005499;
+            border: 0.12em solid #004985;
         }
 
         .turn-up {
@@ -454,6 +548,8 @@
     <div id='menu'>
         <h1 id='title'>Game</h1>
 
+        <select id='lang'></select>
+
         <button id='start-button' onclick='switchScene("menu", "levels")'>
             Start game
         </button>
@@ -468,7 +564,7 @@
         </button>
 
         <!-- Author -->
-        <p id='author'>
+        <p id='author' tabindex='0'>
             Made by <a href="https://github.com/VitalRus95">Vitaly Pavlovich Ulyanov (Vital)</a>.
         </p>
     </div>
@@ -505,6 +601,7 @@
                 Save level
             </a>
 
+            <!-- Level settings -->
             <details>
                 <summary id='editor-tools-summary'>Level settings</summary>
 
@@ -519,6 +616,20 @@
                     <div>
                         <label for='size-y'>Y</label>
                         <input type='number' id='size-y' min='5' max='50' value='5'>
+                    </div>
+                </div>
+
+                <!-- Player vector -->
+                <div id='editor-vector'>
+                    <span id='vector-label'>Player's vector:</span>
+
+                    <div>
+                        <label for='vector-x'>X</label>
+                        <input type='number' id='vector-x' min='-1' max='1' value='0'>
+                    </div>
+                    <div>
+                        <label for='vector-y'>Y</label>
+                        <input type='number' id='vector-y' min='-1' max='1' value='1'>
                     </div>
                 </div>
 
@@ -557,89 +668,65 @@
         <h2 id='blocks-title'>Blocks</h2>
 
         <div id='blocks-list'>
-            <span class='editor-only'>
+            <button id='blocks-player' class='editor-only' onclick='setCell(selected.x, selected.y, "player")'>
+                Player
                 <div class='cell player'></div>
-                <button id='blocks-player' onclick='setCell(selected.x, selected.y, "player")'>
-                    Player
-                </button>
-            </span>
-    
-            <span class='editor-only'>
+            </button>
+
+            <button id='blocks-finish' class='editor-only' onclick='setCell(selected.x, selected.y, "finish")'>
+                Finish
                 <div class='cell finish'></div>
-                <button id='blocks-finish' onclick='setCell(selected.x, selected.y, "finish")'>
-                    Finish
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-empty' onclick='setCell(selected.x, selected.y, "cell")'>
+                Empty
                 <div class='cell'></div>
-                <button id='blocks-empty' onclick='setCell(selected.x, selected.y, "cell")'>
-                    Empty
-                </button>
-            </span>
+            </button>
 
-            <span class='editor-only'>
+            <button id='blocks-wall' class='editor-only' onclick='setCell(selected.x, selected.y, "wall")'>
+                Wall
                 <div class='cell wall'></div>
-                <button id='blocks-wall' onclick='setCell(selected.x, selected.y, "wall")'>
-                    Wall
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-n' onclick='setCell(selected.x, selected.y, "turn-up")'>
+                Turn N
                 <div class='cell turn-up'></div>
-                <button id='blocks-n' onclick='setCell(selected.x, selected.y, "turn-up")'>
-                    Turn N
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-s' onclick='setCell(selected.x, selected.y, "turn-down")'>
+                Turn S
                 <div class='cell turn-down'></div>
-                <button id='blocks-s' onclick='setCell(selected.x, selected.y, "turn-down")'>
-                    Turn S
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-w' onclick='setCell(selected.x, selected.y, "turn-left")'>
+                Turn W
                 <div class='cell turn-left'></div>
-                <button id='blocks-w' onclick='setCell(selected.x, selected.y, "turn-left")'>
-                    Turn W
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-e' onclick='setCell(selected.x, selected.y, "turn-right")'>
+                Turn E
                 <div class='cell turn-right'></div>
-                <button id='blocks-e' onclick='setCell(selected.x, selected.y, "turn-right")'>
-                    Turn E
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-nw' onclick='setCell(selected.x, selected.y, "turn-nw")'>
+                Turn NW
                 <div class='cell turn-nw'></div>
-                <button id='blocks-nw' onclick='setCell(selected.x, selected.y, "turn-nw")'>
-                    Turn NW
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-ne' onclick='setCell(selected.x, selected.y, "turn-ne")'>
+                Turn NE
                 <div class='cell turn-ne'></div>
-                <button id='blocks-ne' onclick='setCell(selected.x, selected.y, "turn-ne")'>
-                    Turn NE
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-sw' onclick='setCell(selected.x, selected.y, "turn-sw")'>
+                Turn SW
                 <div class='cell turn-sw'></div>
-                <button id='blocks-sw' onclick='setCell(selected.x, selected.y, "turn-sw")'>
-                    Turn SW
-                </button>
-            </span>
+            </button>
 
-            <span>
+            <button id='blocks-se' onclick='setCell(selected.x, selected.y, "turn-se")'>
+                Turn SE
                 <div class='cell turn-se'></div>
-                <button id='blocks-se' onclick='setCell(selected.x, selected.y, "turn-se")'>
-                    Turn SE
-                </button>
-            </span>
+            </button>
         </div>
     </div>
 
@@ -682,6 +769,10 @@
         /** @type {HTMLInputElement} */
         let sizeY = document.getElementById('size-y');
         /** @type {HTMLInputElement} */
+        let vectorX = document.getElementById('vector-x');
+        /** @type {HTMLInputElement} */
+        let vectorY = document.getElementById('vector-y');
+        /** @type {HTMLInputElement} */
         let loadLevel = document.getElementById('load-level');
         /** @type {HTMLInputElement} */
         let editorLoadLevel = document.getElementById('editor-load-level');
@@ -691,6 +782,8 @@
         let isInEditor = false;
         /** @type {number} */
         let moveInterval = null;
+        /** @type {string} */
+        let lastCellType = null;
         /** @type {{x: number, y: number}} */
         let selected = { x: 0, y: 0 };
         /** @type {{x: number, y: number}} */
@@ -753,6 +846,22 @@
             loadLevelFromFile(event, editorLoadLevel);
         });
 
+        sizeX.addEventListener('click', function (event) {
+            sizeX.focus();
+        });
+
+        sizeY.addEventListener('click', function (event) {
+            sizeY.focus();
+        });
+
+        vectorX.addEventListener('click', function (event) {
+            vectorX.focus();
+        });
+
+        vectorY.addEventListener('click', function (event) {
+            vectorY.focus();
+        });
+
         sizeX.addEventListener('blur', function (event) {
             level.gridSize.x = clamp(+sizeX.min, +sizeX.value, +sizeX.max);
             saveGridBlocks();
@@ -763,6 +872,14 @@
             level.gridSize.y = clamp(+sizeY.min, +sizeY.value, +sizeY.max);
             saveGridBlocks();
             fillGrid();
+        });
+
+        vectorX.addEventListener('blur', function (event) {
+            level.initSpeed.x = clamp(+vectorX.min, +vectorX.value, +vectorX.max);
+        });
+
+        vectorY.addEventListener('blur', function (event) {
+            level.initSpeed.y = clamp(+vectorY.min, +vectorY.value, +vectorY.max);
         });
 
         /**
@@ -854,8 +971,13 @@
                             setCell(x, y, 'cell');
                         } else if (isCellEditable(x, y)) {
                             switchScene('game', 'blocks');
-                            selected.x = x;
-                            selected.y = y;
+                                selected.x = x;
+                                selected.y = y;
+                        }
+                    });
+                    cell.addEventListener('mouseenter', function (event) {
+                        if (event.shiftKey && lastCellType) {
+                            setCell(x, y, lastCellType);
                         }
                     });
                     cell.addEventListener('contextmenu', function (event) {
@@ -945,7 +1067,7 @@
                     player.y = y;
                     level.start.x = x;
                     level.start.y = y;
-                    addPlayer();
+                    addPlayer(false);
                     break; // Never forget `break;` like I did!
                 default:
                     cell.classList.add(type);
@@ -954,6 +1076,11 @@
             }
             
             switchScene('blocks', 'game');
+            if (type !== 'player' && type !== 'finish') {
+                lastCellType = type;
+            } else {
+                lastCellType = null;
+            }
         }
 
         /**
@@ -986,8 +1113,9 @@
 
         /**
          * @param {boolean} resetPosition
+         * @param {string} direction
         */
-        function addPlayer(resetPosition) {
+        function addPlayer(resetPosition, direction) {
             if (resetPosition) {
                 player.x = level.start.x;
                 player.y = level.start.y;
@@ -996,10 +1124,29 @@
             }
 
             getCell(player.x, player.y)?.classList.add('player');
+            
+            /** @type {string} */
+            let dir;
+
+            if (speed.x === 0 && speed.y < 0) dir = 'dir-up';
+            else if (speed.x === 0 && speed.y > 0) dir = 'dir-down';
+            else if (speed.x < 0 && speed.y === 0) dir = 'dir-left';
+            else if (speed.x > 0 && speed.y === 0) dir = 'dir-right';
+            else if (speed.x < 0 && speed.y < 0) dir = 'dir-nw';
+            else if (speed.x > 0 && speed.y < 0) dir = 'dir-ne';
+            else if (speed.x < 0 && speed.y > 0) dir = 'dir-sw';
+            else if (speed.x > 0 && speed.y > 0) dir = 'dir-se';
+
+            if (dir) {
+                getCell(player.x, player.y)?.classList.add(dir);
+            }
         }
 
         function removePlayer() {
-            getCell(player.x, player.y)?.classList.remove('player');
+            getCell(player.x, player.y)?.classList.remove(
+                'player', 'dir-up', 'dir-down', 'dir-left', 'dir-right',
+                'dir-nw', 'dir-ne', 'dir-sw', 'dir-se'
+            );
         }
 
         function stopGameProcess() {
@@ -1075,7 +1222,7 @@
             removePlayer();
             player.x = ringClamp(0, player.x + speed.x, level.gridSize.x - 1);
             player.y = ringClamp(0, player.y + speed.y, level.gridSize.y - 1);
-            addPlayer();
+            addPlayer(false);
         }
 
         /**
@@ -1083,12 +1230,14 @@
          * @param {boolean} editorMode
         */
         function startGame(from, editorMode) {
+            lastCellType = null;
             isInEditor = editorMode;
+            
             if (isInEditor === true) fillGrid();
             if (!moveInterval) addPlayer(true);
 
             for (let e of document.getElementsByClassName('editor-only')) {
-                e.style.display = editorMode ? 'block' : 'none';
+                e.style.display = editorMode ? 'flex' : 'none';
             }
             switchScene(from, 'game');
         }
@@ -1672,12 +1821,7 @@
          */
         function generateLanguagesList(languages) {
             /** @type {HTMLSelectElement} */
-            let list = document.body.insertBefore(
-                document.createElement('select'),
-                document.getElementById('menu')
-            );
-            list.id = 'lang';
-            list.style.borderRadius = '7px 0px 0px 7px';
+            let list = document.getElementById('lang');
             list.addEventListener('change', function (event) {
                 selectLanguage(languages, true);
             });
@@ -1704,7 +1848,7 @@
             /** @type {string} */
             let selection = null;
 
-            if (fromMenu === false) {
+            if (!fromMenu) {
                 if (localStorage.getItem('lang')) {
                     selection = localStorage.getItem('lang');
                     menu.value = selection;
