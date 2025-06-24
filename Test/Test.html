@@ -166,16 +166,23 @@
             margin-block: 4px;
         }
 
-        input[type='number'] {
-            background-color: #fababa;
-            font-size: 1em;
-            font-weight: 600;
-            text-align: center;
+        hr {
+            border-style: none;
+            border-top: 4px double #005499;
+            margin-block: 4px;
+            width: 100%;
         }
 
-        input[type='number']:focus,
-        input[type='number']:hover {
+        input {
+            background-color: #befdd6;
+            border: 2px outset #adadad;
+            font-size: 1em;
+        }
+
+        input:focus,
+        input:hover {
             background-color: #e5f1fb;
+            border-color: #0078D7;
         }
 
         select {
@@ -243,6 +250,10 @@
             cursor: help;
             width: 100%;
             opacity: 0.9;
+        }
+
+        #set-player-symbol {
+            max-width: 3em;
         }
 
         #author:focus,
@@ -401,6 +412,12 @@
             width: 100%;
         }
 
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            row-gap: 2px;
+        }
+
         .editor-only {
             display: none;
         }
@@ -417,14 +434,14 @@
             justify-content: center;
             background-color: transparent;
             color: #000000;
-            border: 0.12em solid #307fc0;
+            border: 0.09em solid #307fc0;
             border-radius: 8px;
-            font-size: 1em;
+            font-size: 1.4em;
             font-weight: 600;
-            min-width: 2.3em;
-            min-height: 2.3em;
-            max-width: 2.3em;
-            max-height: 2.3em;
+            min-width: 1.65em;
+            min-height: 1.65em;
+            max-width: 1.65em;
+            max-height: 1.65em;
             cursor: cell;
             transition: all 2s ease;
         }
@@ -444,39 +461,39 @@
         }
 
         .dir-up {
-            border-top-width: 0.77em;
+            border-top-width: 0.3em;
         }
 
         .dir-down {
-            border-bottom-width: 0.77em;
+            border-bottom-width: 0.3em;
         }
 
         .dir-left {
-            border-left-width: 0.77em;
+            border-left-width: 0.3em;
         }
 
         .dir-right {
-            border-right-width: 0.77em;
+            border-right-width: 0.3em;
         }
 
         .dir-nw {
-            border-top-width: 0.77em;
-            border-left-width: 0.77em;
+            border-top-width: 0.3em;
+            border-left-width: 0.3em;
         }
 
         .dir-ne {
-            border-top-width: 0.77em;
-            border-right-width: 0.77em;
+            border-top-width: 0.3em;
+            border-right-width: 0.3em;
         }
 
         .dir-sw {
-            border-bottom-width: 0.77em;
-            border-left-width: 0.77em;
+            border-bottom-width: 0.3em;
+            border-left-width: 0.3em;
         }
 
         .dir-se {
-            border-bottom-width: 0.77em;
-            border-right-width: 0.77em;
+            border-bottom-width: 0.3em;
+            border-right-width: 0.3em;
         }
 
         .wall {
@@ -496,46 +513,46 @@
         }
 
         .turn-up {
-            border-top-width: 0.77em;
+            border-top-width: 0.55em;
             cursor: n-resize;
         }
 
         .turn-down {
-            border-bottom-width: 0.77em;
+            border-bottom-width: 0.55em;
             cursor: s-resize;
         }
 
         .turn-left {
-            border-left-width: 0.77em;
+            border-left-width: 0.55em;
             cursor: w-resize;
         }
 
         .turn-right {
-            border-right-width: 0.77em;
+            border-right-width: 0.55em;
             cursor: e-resize;
         }
 
         .turn-nw {
-            border-top-width: 0.77em;
-            border-left-width: 0.77em;
+            border-top-width: 0.55em;
+            border-left-width: 0.55em;
             cursor: nw-resize;
         }
 
         .turn-ne {
-            border-top-width: 0.77em;
-            border-right-width: 0.77em;
+            border-top-width: 0.55em;
+            border-right-width: 0.55em;
             cursor: ne-resize;
         }
 
         .turn-sw {
-            border-bottom-width: 0.77em;
-            border-left-width: 0.77em;
+            border-bottom-width: 0.55em;
+            border-left-width: 0.55em;
             cursor: sw-resize;
         }
 
         .turn-se {
-            border-bottom-width: 0.77em;
-            border-right-width: 0.77em;
+            border-bottom-width: 0.55em;
+            border-right-width: 0.55em;
             cursor: se-resize;
         }
 
@@ -577,11 +594,11 @@
 
     <!-- Levels div -->
     <div id='levels' tabindex='0'>
+        <h2 id='levels-title'>Levels</h2>
+
         <button id='levels-back' onclick='switchScene("levels", "menu")'>
             Back
         </button>
-
-        <h2 id='levels-title'>Levels</h2>
 
         <button id='continue' onclick='startGame("levels", false)' disabled>Continue</button>
 
@@ -589,10 +606,14 @@
             <label id='load-label' for='load-level'>Load level</label>
             <input id='load-level' type='file' accept='.json'>
         </div>
+
+        <hr>
     </div>
 
     <!-- Game div -->
     <div id='game' tabindex='0'>
+        <h2 id='level-title'></h2>
+
         <button id='game-back' onclick='pauseGame()'>
             Back
         </button>
@@ -673,11 +694,13 @@
 
     <!-- Blocks div -->
     <div id='blocks' tabindex='0'>
+        <h2 id='blocks-title'>Blocks</h2>
+
         <button id='blocks-back' onclick='switchScene("blocks", "game")'>
             Return to game
         </button>
 
-        <h2 id='blocks-title'>Blocks</h2>
+        <hr>
 
         <div id='blocks-list'>
             <button id='blocks-player' class='editor-only' onclick='setCellAndReturn(selected.x, selected.y, "player")'>
@@ -744,20 +767,29 @@
 
     <!-- Settings div -->
     <div id='settings' tabindex='0'>
+        <h2 id='settings-title'>Settings</h2>
+
         <button id='settings-back' onclick='switchScene("settings", "menu")'>
             Back
         </button>
 
-        <h2 id='settings-title'>Settings</h2>
+        <ul class='settings-list'>
+            <li><div class='setting-div'>
+                <label for='set-player-symbol'>Player's symbol</label>
+                <input type='text' id='set-player-symbol' placeholder=':)'>
+            </div></li>
+        </ul>
     </div>
 
     <!-- About div -->
     <div id='about' tabindex='0'>
+        <h2 id='about-title'>About</h2>
+
         <button id='about-back' onclick='switchScene("about", "menu")'>
             Back
         </button>
 
-        <h2 id='about-title'>About</h2>
+        <p>Game description. To be continued...</p>
     </div>
 
     <script>
@@ -775,6 +807,11 @@
         /** @type {HTMLDivElement} */
         let about = document.getElementById('about');
 
+        /** @type {HTMLInputElement} */
+        let playerSymbol = document.getElementById('set-player-symbol');
+
+        /** @type {HTMLHeadingElement} */
+        let levelTitle = document.getElementById('level-title');
         /** @type {HTMLDivElement} */
         let grid = document.getElementById('grid');
         /** @type {HTMLButtonElement} */
@@ -830,6 +867,11 @@
         continueButton.disabled = true;
         vectorMenu.value = 'dir-down';
         copyLast.checked = false;
+
+        // Settings' events
+        playerSymbol.addEventListener('input', function (event) {
+            localStorage.setItem('playerSymbol', playerSymbol.value);
+        });
 
         // Exiting on pressing Escape
         levels.addEventListener('keydown', function (event) {
@@ -954,6 +996,10 @@
         });
 
         // Functions
+        function loadSettings() {
+            playerSymbol.value = localStorage.getItem('playerSymbol') || '';
+        }
+
         /**
          * @param {InputEvent} event
          * @param {HTMLInputElement} input
@@ -962,7 +1008,6 @@
             await input.files[0].text().then((data) => {
                 try {
                     level = JSON.parse(data);
-                    input.value = '';
                 } catch (error) {
                     alert(`Error while loading the level: ${error}`);
                     level = {
@@ -972,11 +1017,13 @@
                         blocks: []
                     };
                 } finally {
+                    levelTitle.textContent = input.files[0].name.replace('.json', '');
                     fillGrid();
                     if (input === loadLevel) {
                         startGame('levels', false);
                     }
                     getCell(player.x, player.y)?.focus();
+                    input.value = '';
                 }
             });
         }
@@ -985,7 +1032,7 @@
             // Reset everything
             while (grid.hasChildNodes()) grid.lastChild.remove();
             continueButton.disabled = false;
-            clearInterval(moveInterval);
+            stopGameProcess();
 
             // Set X and Y dimenstions in the editor
             sizeX.value = level.gridSize.x;
@@ -1041,7 +1088,8 @@
                             case ' ':
                                 event.preventDefault();
                                 if (isCellEditable(x, y)) {
-                                    if (copyLast.checked
+                                    if (isInEditor
+                                        && copyLast.checked
                                         && lastCellType
                                         && !cell.classList.contains(lastCellType)
                                     ) {
@@ -1062,7 +1110,8 @@
                         if (event.button === 2) { // Right mouse key
                             setCell(x, y, 'cell');
                         } else if (isCellEditable(x, y)) {
-                            if (copyLast.checked 
+                            if (isInEditor
+                                && copyLast.checked 
                                 && lastCellType
                                 && !cell.classList.contains(lastCellType)
                             ) {
@@ -1160,6 +1209,7 @@
 
             switch (type) {
                 case 'cell':
+                    cell.textContent = '';
                     break;
                 case 'player':
                     removePlayer();
@@ -1235,7 +1285,10 @@
                 speed.y = level.initSpeed.y;
             }
 
-            getCell(player.x, player.y)?.classList.add('player');
+            /** @type {HTMLDivElement} */
+            let plr = getCell(player.x, player.y);
+            
+            plr.classList.add('player');
             
             /** @type {string} */
             let dir;
@@ -1249,16 +1302,25 @@
             else if (speed.x < 0 && speed.y > 0) dir = 'dir-sw';
             else if (speed.x > 0 && speed.y > 0) dir = 'dir-se';
 
-            if (dir) {
-                getCell(player.x, player.y)?.classList.add(dir);
+            if (dir) plr.classList.add(dir);
+            if (!plr.textContent && playerSymbol.value) {
+                plr.textContent = playerSymbol.value;
             }
         }
 
         function removePlayer() {
-            getCell(player.x, player.y)?.classList.remove(
+            /** @type {HTMLDivElement} */
+            let plr = getCell(player.x, player.y);
+
+            if (!plr) return;
+
+            plr.classList.remove(
                 'player', 'dir-up', 'dir-down', 'dir-left', 'dir-right',
                 'dir-nw', 'dir-ne', 'dir-sw', 'dir-se'
             );
+            if (plr.textContent === playerSymbol.value) {
+                plr.textContent = '';
+            }
         }
 
         function stopGameProcess() {
@@ -1976,6 +2038,8 @@
                 ]
             }
         ]);
+
+        loadSettings();
 
         /**
          * @typedef {Object} Translation
