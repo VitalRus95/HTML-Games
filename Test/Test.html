@@ -74,8 +74,12 @@
         }
 
         .player.wall {
-            border: 0.5em solid #ff4343;
+            border: 0.3em solid #ff4343;
             animation: wall 0.7s ease;
+        }
+
+        .player.jump {
+            background-image: linear-gradient(45deg, #ff4343, #f1ff30);
         }
 
         .player.finish {
@@ -358,46 +362,46 @@
         }
 
         #blocks-list > button > div {
-            min-width: 1.8em;
-            min-height: 1.8em;
-            max-width: 1.8em;
-            max-height: 1.8em;
+            min-width: 1.35em;
+            min-height: 1.35em;
+            max-width: 1.35em;
+            max-height: 1.35em;
         }
 
         #blocks-list > button > .turn-up {
-            border-top-width: 0.6em;
+            border-top-width: 0.45em;
         }
 
         #blocks-list > button > .turn-down {
-            border-bottom-width: 0.6em;
+            border-bottom-width: 0.45em;
         }
 
         #blocks-list > button > .turn-left {
-            border-left-width: 0.6em;
+            border-left-width: 0.45em;
         }
 
         #blocks-list > button > .turn-right {
-            border-right-width: 0.6em;
+            border-right-width: 0.45em;
         }
 
         #blocks-list > button > .turn-nw {
-            border-top-width: 0.6em;
-            border-left-width: 0.6em;
+            border-top-width: 0.45em;
+            border-left-width: 0.45em;
         }
 
         #blocks-list > button > .turn-ne {
-            border-top-width: 0.6em;
-            border-right-width: 0.6em;
+            border-top-width: 0.45em;
+            border-right-width: 0.45em;
         }
 
         #blocks-list > button > .turn-sw {
-            border-bottom-width: 0.6em;
-            border-left-width: 0.6em;
+            border-bottom-width: 0.45em;
+            border-left-width: 0.45em;
         }
 
         #blocks-list > button > .turn-se {
-            border-bottom-width: 0.6em;
-            border-right-width: 0.6em;
+            border-bottom-width: 0.45em;
+            border-right-width: 0.45em;
         }
 
         /* Classes */
@@ -556,9 +560,15 @@
             cursor: se-resize;
         }
 
+        .jump {
+            background-color: #f1ff30;
+            border: 0.3em double #590000;
+            cursor: move;
+        }
+
         .finish {
             background-color: #a2ff89;
-            border: 8px double #000000;
+            border: 0.3em double #000000;
             border-radius: 50%;
             cursor: pointer;
         }
@@ -721,6 +731,11 @@
             <button id='blocks-wall' class='editor-only' onclick='setCellAndReturn(selected.x, selected.y, "wall")'>
                 Wall
                 <div class='cell wall'></div>
+            </button>
+
+            <button id='blocks-jump' onclick='setCellAndReturn(selected.x, selected.y, "jump")'>
+                Jump
+                <div class='cell jump'></div>
             </button>
 
             <button id='blocks-n' onclick='setCellAndReturn(selected.x, selected.y, "turn-up")'>
@@ -1388,14 +1403,25 @@
                     speed.x = 1;
                     speed.y = 1;
                     break;
+                case 'jump':
+                    advancePlayer(1);
+                    break;
                 default:
                     break;
             }
 
-            // Continue moving
+            advancePlayer(1);
+        }
+
+        /**
+         * @param {number} steps
+        */
+        function advancePlayer(steps) {
             removePlayer();
-            player.x = ringClamp(0, player.x + speed.x, level.gridSize.x - 1);
-            player.y = ringClamp(0, player.y + speed.y, level.gridSize.y - 1);
+            for (let i = 0; i < steps; i++) {
+                player.x = ringClamp(0, player.x + speed.x, level.gridSize.x - 1);
+                player.y = ringClamp(0, player.y + speed.y, level.gridSize.y - 1);
+            }
             addPlayer(false);
         }
 
