@@ -1372,14 +1372,14 @@
                         menu.value = selection;
                     } else if (navigator.language) {
                         // Iterate over translations
-                        for (const l of languages) {
+                        for (let l of languages) {
                             // If the valid option is finally found, exit
                             if (selection) {
                                 break;
                             } else if (l.langTags) {
                                 // Otherwise iterate over the tags and
                                 // compare them to the browser language
-                                for (const t of l.langTags) {
+                                for (let t of l.langTags) {
                                     if (navigator.language === t) {
                                         menu.value = l.name;
                                         selection = l.name;
@@ -1397,7 +1397,7 @@
                     /** @type {Translation} */
                     let translation = {};
             
-                    for (const l of languages) {
+                    for (let l of languages) {
                         if (l.name === selection) {
                             translation = l;
                             break;
@@ -1407,7 +1407,7 @@
                     if (translation) {
                         localStorage.setItem('lang', selection);
             
-                        for (const e of translation.elements) {
+                        for (let e of translation.elements) {
                             let target = document.getElementById(e.id);
             
                             if (target) {
@@ -1423,7 +1423,7 @@
                                     /** @type {number} */
                                     let index = 0;
             
-                                    for (const c of target.childNodes) {
+                                    for (let c of target.childNodes) {
                                         if (c.textContent
                                             && c.textContent.trim() !== ''
                                             && e.childNodesTexts[index]

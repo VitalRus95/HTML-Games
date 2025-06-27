@@ -79,7 +79,9 @@
         }
 
         .player.jump {
-            background-image: linear-gradient(45deg, #ff4343, #f1ff30);
+            background-color: #ff4343;
+            transform: scale(0.5);
+            transition: all 0.4s ease;
         }
 
         .player.finish {
@@ -218,6 +220,15 @@
             cursor: pointer;
         }
 
+        table {
+            border: 2px outset #adadad;
+            width: 100%;
+        }
+
+        td {
+            border-bottom: 2px outset #307fc0;
+        }
+
         /* Elements by ID */
         #lang {
             margin-top: 4px;
@@ -235,6 +246,7 @@
         }
 
         #game,
+        #stats,
         #levels,
         #blocks,
         #editor,
@@ -451,7 +463,7 @@
         }
 
         .cell:focus {
-            box-shadow: 0px 0px 0px 0.3em #9d0000;
+            box-shadow: 0px 0px 0px 0.2em #9d0000;
             outline-style: none;
             transition: all 0s ease;
         }
@@ -564,6 +576,7 @@
             background-color: #f1ff30;
             border: 0.3em double #590000;
             cursor: move;
+            transition: all 0.2s ease;
         }
 
         .finish {
@@ -627,6 +640,21 @@
         <button id='game-back' onclick='pauseGame()'>
             Back
         </button>
+
+        <!-- Statistics -->
+        <div id='stats'>
+            <table>
+                <tr>
+                    <td id='stats-steps-label'>Steps</td>
+                    <td id='stats-steps-value'>0</td>
+                </tr>
+
+                <tr>
+                    <td id='stats-blocks-label'>Blocks used</td>
+                    <td id='stats-blocks-value'>0</td>
+                </tr>
+            </table>
+        </div>
 
         <!-- Editor -->
         <div id='editor-div' class='editor-only'>
@@ -816,6 +844,12 @@
         /** @type {HTMLDivElement} */
         let game = document.getElementById('game');
         /** @type {HTMLDivElement} */
+        let stats = document.getElementById('stats');
+        /** @type {HTMLTableDataCellElement} */
+        let statsSteps = document.getElementById('stats-steps-value');
+        /** @type {HTMLTableDataCellElement} */
+        let statsBlocks = document.getElementById('stats-blocks-value');
+        /** @type {HTMLDivElement} */
         let blocks = document.getElementById('blocks');
         /** @type {HTMLDivElement} */
         let settings = document.getElementById('settings');
@@ -853,6 +887,142 @@
         /** @type {HTMLInputElement} */
         let editorLoadLevel = document.getElementById('editor-load-level');
 
+        // Objects
+        let player = {
+            x: 0,
+            y: 0,
+            get cell() {
+                return getCell(this.x, this.y);
+            },
+            /**
+             * @param {boolean} resetPos
+            */
+            create(resetPos) {
+                if (resetPos) {
+                    this.x = level.start.x;
+                    this.y = level.start.y;
+                    speed.x = level.initSpeed.x;
+                    speed.y = level.initSpeed.y;
+                }
+
+                this.cell?.classList.add('player');
+                
+                /** @type {string} */
+                let dir;
+
+                if (speed.x === 0 && speed.y < 0) dir = 'dir-up';
+                else if (speed.x === 0 && speed.y > 0) dir = 'dir-down';
+                else if (speed.x < 0 && speed.y === 0) dir = 'dir-left';
+                else if (speed.x > 0 && speed.y === 0) dir = 'dir-right';
+                else if (speed.x < 0 && speed.y < 0) dir = 'dir-nw';
+                else if (speed.x > 0 && speed.y < 0) dir = 'dir-ne';
+                else if (speed.x < 0 && speed.y > 0) dir = 'dir-sw';
+                else if (speed.x > 0 && speed.y > 0) dir = 'dir-se';
+
+                if (dir) this.cell?.classList.add(dir);
+                if (!this.cell?.textContent && playerSymbol.value) {
+                    this.cell.textContent = playerSymbol.value;
+                }
+            },
+            remove() {
+                if (!this.cell) return;
+
+                this.cell.classList.remove(
+                    'player', 'dir-up', 'dir-down', 'dir-left', 'dir-right',
+                    'dir-nw', 'dir-ne', 'dir-sw', 'dir-se'
+                );
+                if (this.cell.textContent === playerSymbol.value) {
+                    this.cell.textContent = '';
+                }
+            },
+            /**
+             * @param {number} steps
+            */
+            advance(steps) {
+                this.remove();
+                for (let i = 0; i < steps; i++) {
+                    this.x = ringClamp(0, this.x + speed.x, level.gridSize.x - 1);
+                    this.y = ringClamp(0, this.y + speed.y, level.gridSize.y - 1);
+                }
+                this.create(false);
+            },
+            processMovement() {
+                if (game.style.display === 'none') return;
+                if (!this.cell) return; // Should not be true but still
+                
+                // Wall collision
+                if (this.cell.classList.contains('wall')) {
+                    grid.style.animation = 'lose 0.6s ease';
+                    stopGameProcess();
+                    this.remove();
+                    this.create(true);
+                    return;
+                }
+
+                // Finish reached
+                if (this.cell.classList.contains('finish')) {
+                    grid.style.animation = 'win 1s ease';
+                    statsBlocks.textContent = blocksUsed;
+                    statsSteps.textContent = steps;
+                    stats.style.display = 'flex';
+                    stopGameProcess();
+                    this.remove();
+                    return;
+                }
+
+                // Switch direction
+                switch (this.cell.classList.item(1)) {
+                    case 'turn-up':
+                        speed.x = 0;
+                        speed.y = -1;
+                        break;
+                    case 'turn-down':
+                        speed.x = 0;
+                        speed.y = 1;
+                        break;
+                    case 'turn-left':
+                        speed.x = -1;
+                        speed.y = 0;
+                        break;
+                    case 'turn-right':
+                        speed.x = 1;
+                        speed.y = 0;
+                        break;
+                    case 'turn-nw':
+                        speed.x = -1;
+                        speed.y = -1;
+                        break;
+                    case 'turn-ne':
+                        speed.x = 1;
+                        speed.y = -1;
+                        break;
+                    case 'turn-sw':
+                        speed.x = -1;
+                        speed.y = 1;
+                        break;
+                    case 'turn-se':
+                        speed.x = 1;
+                        speed.y = 1;
+                        break;
+                    case 'jump':
+                        this.advance(1);
+                        break;
+                    default:
+                        break;
+                }
+
+                this.advance(1);
+                steps ++;
+            }
+        };
+
+        let level = {
+            gridSize: { x: 5, y: 5},
+            start: { x: 2, y: 2},
+            initSpeed: { x: 0, y: 1 },
+            blocks: []
+        };
+
         // Variables
         /** @type {boolean} */
         let isInEditor = false;
@@ -863,21 +1033,11 @@
         /** @type {{x: number, y: number}} */
         let selected = { x: 0, y: 0 };
         /** @type {{x: number, y: number}} */
-        let player = { x: 0, y: 0 };
-        /** @type {{x: number, y: number}} */
         let speed = { x: 0, y: 0 };
-        /** @type {{
-            gridSize: { x: number, y: number },
-            start: { x: number, y: number },
-            initSpeed: { x: number, y: number },
-            blocks: { x: number, y: number, type: string }[]
-        }}*/
-        let level = {
-            gridSize: { x: 5, y: 5},
-            start: { x: 2, y: 2},
-            initSpeed: { x: 0, y: 1 },
-            blocks: []
-        };
+        /** @type {number} */
+        let blocksUsed = 0;
+        /** @type {number} */
+        let steps = 0;
 
         continueButton.disabled = true;
         vectorMenu.value = 'dir-down';
@@ -907,22 +1067,28 @@
 
         // Other events
         launchButton.addEventListener('click', function (event) {
-            removePlayer();
-            addPlayer(true);
+            steps = 0;
+            player.remove();
+            player.create(true);
+            stats.style.display = 'none';
+
             if (moveInterval === null) {
-                moveInterval = setInterval(processMovement, 500);
+                moveInterval = setInterval(function () {
+                    player.processMovement();
+                }, 500);
                 grid.style.animation = 'none';
             }
         });
 
         stopButton.addEventListener('click', function (event) {
             stopGameProcess();
-            removePlayer();
-            addPlayer(true);
+            player.remove();
+            player.create(true);
         });
 
         resetButton.addEventListener('click', function (event) {
             stopGameProcess();
+            blocksUsed = 0;
             fillGrid();
         });
 
@@ -941,6 +1107,7 @@
 
         loadLevel.addEventListener('input', function (event) {
             loadLevelFromFile(event, loadLevel);
+            blocksUsed = 0;
         });
 
         editorLoadLevel.addEventListener('input', function (event) {
@@ -968,7 +1135,7 @@
         });
 
         vectorMenu.addEventListener('change', function (event) {
-            removePlayer();
+            player.remove();
             
             switch (vectorMenu.value) {
                 case 'dir-up':
@@ -1007,7 +1174,7 @@
                     break;
             }
 
-            addPlayer(true);
+            player.create(true);
         });
 
         // Functions
@@ -1152,8 +1319,8 @@
             }
 
             // Add player
-            removePlayer();
-            addPlayer(true);
+            player.remove();
+            player.create(true);
 
             // Fill special cells
             if (level.blocks) {
@@ -1169,7 +1336,7 @@
         */
         function shiftAll(dir) {
             saveGridBlocks();
-            removePlayer();
+            player.remove();
 
             /** @type {number} */
             let x = dir === 'E' ? 1 : dir === 'W' ? -1 : 0;
@@ -1179,7 +1346,7 @@
             level.start.x = ringClamp(0, level.start.x + x, level.gridSize.x - 1);
             level.start.y = ringClamp(0, level.start.y + y, level.gridSize.y - 1);
 
-            for (const block of level.blocks) {
+            for (let block of level.blocks) {
                 block.x = ringClamp(0, block.x + x, level.gridSize.x - 1);
                 block.y = ringClamp(0, block.y + y, level.gridSize.y - 1);
             }
@@ -1219,20 +1386,29 @@
             let cell = getCell(x, y);
             if (!cell || !isCellEditable(x, y)) return;
 
+            // TODO: Manage the number of used blocks
+            if (!isInEditor) {
+                blocksUsed += type !== 'cell'
+                    ? 1 // New block
+                    : -1; // Deleting a block
+            }
+
+            // Resetting types
             cell.className = '';
             cell.classList.add('cell');
 
+            // Adding the type
             switch (type) {
                 case 'cell':
                     cell.textContent = '';
                     break;
                 case 'player':
-                    removePlayer();
+                    player.remove();
                     player.x = x;
                     player.y = y;
                     level.start.x = x;
                     level.start.y = y;
-                    addPlayer(false);
+                    player.create(false);
                     break; // Never forget `break;` like I did!
                 default:
                     cell.classList.add(type);
@@ -1240,6 +1416,7 @@
                     break;
             }
             
+            // Update last cell type
             if (type !== 'player'
                 && type !== 'finish'
                 && type !== 'cell'
@@ -1289,140 +1466,11 @@
             );
         }
 
-        /**
-         * @param {boolean} resetPosition
-        */
-        function addPlayer(resetPosition) {
-            if (resetPosition) {
-                player.x = level.start.x;
-                player.y = level.start.y;
-                speed.x = level.initSpeed.x;
-                speed.y = level.initSpeed.y;
-            }
-
-            /** @type {HTMLDivElement} */
-            let plr = getCell(player.x, player.y);
-            
-            plr.classList.add('player');
-            
-            /** @type {string} */
-            let dir;
-
-            if (speed.x === 0 && speed.y < 0) dir = 'dir-up';
-            else if (speed.x === 0 && speed.y > 0) dir = 'dir-down';
-            else if (speed.x < 0 && speed.y === 0) dir = 'dir-left';
-            else if (speed.x > 0 && speed.y === 0) dir = 'dir-right';
-            else if (speed.x < 0 && speed.y < 0) dir = 'dir-nw';
-            else if (speed.x > 0 && speed.y < 0) dir = 'dir-ne';
-            else if (speed.x < 0 && speed.y > 0) dir = 'dir-sw';
-            else if (speed.x > 0 && speed.y > 0) dir = 'dir-se';
-
-            if (dir) plr.classList.add(dir);
-            if (!plr.textContent && playerSymbol.value) {
-                plr.textContent = playerSymbol.value;
-            }
-        }
-
-        function removePlayer() {
-            /** @type {HTMLDivElement} */
-            let plr = getCell(player.x, player.y);
-
-            if (!plr) return;
-
-            plr.classList.remove(
-                'player', 'dir-up', 'dir-down', 'dir-left', 'dir-right',
-                'dir-nw', 'dir-ne', 'dir-sw', 'dir-se'
-            );
-            if (plr.textContent === playerSymbol.value) {
-                plr.textContent = '';
-            }
-        }
-
         function stopGameProcess() {
             if (moveInterval) {
                 clearInterval(moveInterval);
                 moveInterval = null;
             }
-        }
-
-        function processMovement() {
-            if (game.style.display === 'none') return;
-
-            /** @type {HTMLDivElement} */
-            let newCell = getCell(player.x, player.y);
-            if (!newCell) return; // Should not be true but still
-            
-            // Wall collision
-            if (newCell.classList.contains('wall')) {
-                grid.style.animation = 'lose 0.6s ease';
-                stopGameProcess();
-                removePlayer();
-                addPlayer(true);
-                return;
-            }
-
-            // Finish reached
-            if (newCell.classList.contains('finish')) {
-                grid.style.animation = 'win 1s ease';
-                stopGameProcess();
-                removePlayer();
-                return;
-            }
-
-            // Switch direction
-            switch (newCell.classList.item(1)) {
-                case 'turn-up':
-                    speed.x = 0;
-                    speed.y = -1;
-                    break;
-                case 'turn-down':
-                    speed.x = 0;
-                    speed.y = 1;
-                    break;
-                case 'turn-left':
-                    speed.x = -1;
-                    speed.y = 0;
-                    break;
-                case 'turn-right':
-                    speed.x = 1;
-                    speed.y = 0;
-                    break;
-                case 'turn-nw':
-                    speed.x = -1;
-                    speed.y = -1;
-                    break;
-                case 'turn-ne':
-                    speed.x = 1;
-                    speed.y = -1;
-                    break;
-                case 'turn-sw':
-                    speed.x = -1;
-                    speed.y = 1;
-                    break;
-                case 'turn-se':
-                    speed.x = 1;
-                    speed.y = 1;
-                    break;
-                case 'jump':
-                    advancePlayer(1);
-                    break;
-                default:
-                    break;
-            }
-
-            advancePlayer(1);
-        }
-
-        /**
-         * @param {number} steps
-        */
-        function advancePlayer(steps) {
-            removePlayer();
-            for (let i = 0; i < steps; i++) {
-                player.x = ringClamp(0, player.x + speed.x, level.gridSize.x - 1);
-                player.y = ringClamp(0, player.y + speed.y, level.gridSize.y - 1);
-            }
-            addPlayer(false);
         }
 
         /**
@@ -1434,7 +1482,7 @@
             isInEditor = editorMode;
             
             if (isInEditor === true) fillGrid();
-            if (!moveInterval) addPlayer(true);
+            if (!moveInterval) player.create(true);
 
             for (let e of document.getElementsByClassName('editor-only')) {
                 e.style.display = editorMode ? 'flex' : 'none';
