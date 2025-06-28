@@ -158,6 +158,12 @@
             border-color: #0078D7;
         }
 
+        caption {
+            font-size: 1.1em;
+            font-style: italic;
+            font-weight: 600;
+        }
+
         details {
             background-color: #e1e1e1;
             border: 2px outset #adadad;
@@ -221,12 +227,22 @@
         }
 
         table {
-            border: 2px outset #adadad;
+            border-collapse: collapse;
+            margin-block: 4px;
             width: 100%;
         }
 
-        td {
-            border-bottom: 2px outset #307fc0;
+        td, th {
+            border: 2px outset #004985;
+            padding-inline: 2px;
+        }
+
+        tr {
+            background-color: #e5f1fb;
+        }
+
+        tr:nth-of-type(even) {
+            background-color: #ffbbbb;
         }
 
         /* Elements by ID */
@@ -307,6 +323,12 @@
             width: 2.5em;
             height: 2em;
             cursor: pointer;
+        }
+
+        #stats-steps-value,
+        #stats-blocks-value {
+            text-align: center;
+            font-weight: 600;
         }
 
         #container {
@@ -597,7 +619,7 @@
         <select id='lang' tabindex='0'></select>
 
         <button id='start-button' tabindex='1' onclick='switchScene("menu", "levels")'>
-            Start game
+            Play
         </button>
         <button id='editor-button' tabindex='1' onclick='startGame("menu", true)'>
             Level editor
@@ -642,17 +664,21 @@
         </button>
 
         <!-- Statistics -->
-        <div id='stats'>
+        <div id='stats' tabindex='0'>
             <table>
-                <tr>
-                    <td id='stats-steps-label'>Steps</td>
-                    <td id='stats-steps-value'>0</td>
-                </tr>
+                <caption id='stats-label' tabindex='0'>Victory!</caption>
 
-                <tr>
-                    <td id='stats-blocks-label'>Blocks used</td>
-                    <td id='stats-blocks-value'>0</td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td id='stats-steps-label' tabindex='0'>Steps taken</td>
+                        <td id='stats-steps-value' tabindex='0'>0</td>
+                    </tr>
+
+                    <tr>
+                        <td id='stats-blocks-label' tabindex='0'>Blocks used</td>
+                        <td id='stats-blocks-value' tabindex='0'>0</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
 
@@ -961,10 +987,13 @@
 
                 // Finish reached
                 if (this.cell.classList.contains('finish')) {
+                    if (!isInEditor) {
+                        statsBlocks.textContent = blocksUsed;
+                        statsSteps.textContent = steps;
+                        stats.style.display = 'flex';
+                        stats.focus();
+                    }
                     grid.style.animation = 'win 1s ease';
-                    statsBlocks.textContent = blocksUsed;
-                    statsSteps.textContent = steps;
-                    stats.style.display = 'flex';
                     stopGameProcess();
                     this.remove();
                     return;
@@ -1290,7 +1319,9 @@
                     cell.addEventListener('mousedown', function (event) {
                         event.preventDefault();
                         if (event.button === 2) { // Right mouse key
+                            cell.blur();
                             setCell(x, y, 'cell');
+                            cell.focus();
                         } else if (isCellEditable(x, y)) {
                             if (isInEditor
                                 && copyLast.checked 
@@ -1313,7 +1344,9 @@
                     });
                     cell.addEventListener('contextmenu', function (event) {
                         event.preventDefault();
+                        cell.blur();
                         setCell(x, y, 'cell');
+                        cell.focus();
                     });
                 }
             }
@@ -1386,11 +1419,19 @@
             let cell = getCell(x, y);
             if (!cell || !isCellEditable(x, y)) return;
 
-            // TODO: Manage the number of used blocks
+            // Manage the number of used blocks
             if (!isInEditor) {
-                blocksUsed += type !== 'cell'
-                    ? 1 // New block
-                    : -1; // Deleting a block
+                if (type !== 'cell') {
+                    // Adding a block to an empty (!) cell
+                    if (cell.className === 'cell') {
+                        blocksUsed ++;
+                    }
+                } else {
+                    // Deleting a block (must not be empty!)
+                    if (cell.className !== 'cell') {
+                        blocksUsed --;
+                    }
+                }
             }
 
             // Resetting types
@@ -1403,16 +1444,14 @@
                     cell.textContent = '';
                     break;
                 case 'player':
-                    player.remove();
-                    player.x = x;
-                    player.y = y;
                     level.start.x = x;
                     level.start.y = y;
-                    player.create(false);
+                    player.remove();
+                    player.create(true);
                     break; // Never forget `break;` like I did!
                 default:
-                    cell.classList.add(type);
                     if (isInEditor) cell.classList.add('protected');
+                    cell.classList.add(type);
                     break;
             }
             
@@ -1560,7 +1599,7 @@
                     {
                         "id": "start-button",
                         "childNodesTexts": [
-                            "Start game"
+                            "Play"
                         ]
                     },
                     {
@@ -1590,15 +1629,15 @@
                         ]
                     },
                     {
-                        "id": "levels-back",
-                        "childNodesTexts": [
-                            "Back"
-                        ]
-                    },
-                    {
                         "id": "levels-title",
                         "childNodesTexts": [
                             "Levels"
+                        ]
+                    },
+                    {
+                        "id": "levels-back",
+                        "childNodesTexts": [
+                            "Back"
                         ]
                     },
                     {
@@ -1617,6 +1656,24 @@
                         "id": "game-back",
                         "childNodesTexts": [
                             "Back"
+                        ]
+                    },
+                    {
+                        "id": "stats-label",
+                        "childNodesTexts": [
+                            "Victory!"
+                        ]
+                    },
+                    {
+                        "id": "stats-steps-label",
+                        "childNodesTexts": [
+                            "Steps taken"
+                        ]
+                    },
+                    {
+                        "id": "stats-blocks-label",
+                        "childNodesTexts": [
+                            "Blocks used"
                         ]
                     },
                     {
@@ -1717,15 +1774,15 @@
                         ]
                     },
                     {
-                        "id": "blocks-back",
-                        "childNodesTexts": [
-                            "Return to game"
-                        ]
-                    },
-                    {
                         "id": "blocks-title",
                         "childNodesTexts": [
                             "Blocks"
+                        ]
+                    },
+                    {
+                        "id": "blocks-back",
+                        "childNodesTexts": [
+                            "Return to game"
                         ]
                     },
                     {
@@ -1750,6 +1807,12 @@
                         "id": "blocks-wall",
                         "childNodesTexts": [
                             "Wall"
+                        ]
+                    },
+                    {
+                        "id": "blocks-jump",
+                        "childNodesTexts": [
+                            "Jump"
                         ]
                     },
                     {
@@ -1801,19 +1864,13 @@
                         ]
                     },
                     {
-                        "id": "settings-back",
-                        "childNodesTexts": [
-                            "Back"
-                        ]
-                    },
-                    {
                         "id": "settings-title",
                         "childNodesTexts": [
                             "Settings"
                         ]
                     },
                     {
-                        "id": "about-back",
+                        "id": "settings-back",
                         "childNodesTexts": [
                             "Back"
                         ]
@@ -1822,6 +1879,12 @@
                         "id": "about-title",
                         "childNodesTexts": [
                             "About"
+                        ]
+                    },
+                    {
+                        "id": "about-back",
+                        "childNodesTexts": [
+                            "Back"
                         ]
                     }
                 ]
@@ -1845,7 +1908,7 @@
                     {
                         "id": "start-button",
                         "childNodesTexts": [
-                            "Начать игру"
+                            "Играть"
                         ]
                     },
                     {
@@ -1875,15 +1938,15 @@
                         ]
                     },
                     {
-                        "id": "levels-back",
-                        "childNodesTexts": [
-                            "Назад"
-                        ]
-                    },
-                    {
                         "id": "levels-title",
                         "childNodesTexts": [
                             "Уровни"
+                        ]
+                    },
+                    {
+                        "id": "levels-back",
+                        "childNodesTexts": [
+                            "Назад"
                         ]
                     },
                     {
@@ -1902,6 +1965,24 @@
                         "id": "game-back",
                         "childNodesTexts": [
                             "Назад"
+                        ]
+                    },
+                    {
+                        "id": "stats-label",
+                        "childNodesTexts": [
+                            "Победа!"
+                        ]
+                    },
+                    {
+                        "id": "stats-steps-label",
+                        "childNodesTexts": [
+                            "Число шагов"
+                        ]
+                    },
+                    {
+                        "id": "stats-blocks-label",
+                        "childNodesTexts": [
+                            "Использовано блоков"
                         ]
                     },
                     {
@@ -2002,15 +2083,15 @@
                         ]
                     },
                     {
-                        "id": "blocks-back",
-                        "childNodesTexts": [
-                            "Возврат к игре"
-                        ]
-                    },
-                    {
                         "id": "blocks-title",
                         "childNodesTexts": [
                             "Блоки"
+                        ]
+                    },
+                    {
+                        "id": "blocks-back",
+                        "childNodesTexts": [
+                            "Возврат к игре"
                         ]
                     },
                     {
@@ -2035,6 +2116,12 @@
                         "id": "blocks-wall",
                         "childNodesTexts": [
                             "Стена"
+                        ]
+                    },
+                    {
+                        "id": "blocks-jump",
+                        "childNodesTexts": [
+                            "Прыжок"
                         ]
                     },
                     {
@@ -2086,19 +2173,13 @@
                         ]
                     },
                     {
-                        "id": "settings-back",
-                        "childNodesTexts": [
-                            "Назад"
-                        ]
-                    },
-                    {
                         "id": "settings-title",
                         "childNodesTexts": [
                             "Настройки"
                         ]
                     },
                     {
-                        "id": "about-back",
+                        "id": "settings-back",
                         "childNodesTexts": [
                             "Назад"
                         ]
@@ -2107,6 +2188,12 @@
                         "id": "about-title",
                         "childNodesTexts": [
                             "Об игре"
+                        ]
+                    },
+                    {
+                        "id": "about-back",
+                        "childNodesTexts": [
+                            "Назад"
                         ]
                     }
                 ]
