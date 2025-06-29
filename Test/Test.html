@@ -74,22 +74,33 @@
         }
 
         .player.wall {
-            border: 0.3em solid #ff4343;
+            border: 0.3em solid var(--player);
             animation: wall 0.7s ease;
         }
 
         .player.jump {
-            background-color: #ff4343;
+            background-color: var(--player);
             transform: scale(0.5);
             transition: all 0.4s ease;
         }
 
         .player.finish {
-            background-color: #ff4343;
+            background-color: var(--player);
             animation: finish 0.7s ease;
         }
 
         /* All elements */
+        :root {
+            --grey-bgr: #e1e1e1;
+            --grey-border: #adadad;
+            --heading: #005499;
+            --inputs: #befdd6;
+            --player: #ff4343;
+            --player-border: #590000;
+            --blue-hover: #e5f1fb;
+            --blue-hover-border: #0078d7;
+        }
+        
         * {
             color: #000000;
             box-sizing: border-box;
@@ -118,7 +129,7 @@
         }
 
         @media (min-width: 720px) {
-            body { max-width: 50%; }
+            body { max-width: 60%; }
         }
 
         a {
@@ -133,9 +144,9 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            background-color: #e1e1e1;
+            background-color: var(--grey-bgr);
             color: #000000;
-            border: 2px outset #adadad;
+            border: 2px outset var(--grey-border);
             font-size: 1em;
             font-weight: 600;
             margin-block: 2px;
@@ -154,8 +165,8 @@
         button:hover,
         .pseudo-button:focus,
         .pseudo-button:hover {
-            background-color: #e5f1fb;
-            border-color: #0078D7;
+            background-color: var(--blue-hover);
+            border-color: var(--blue-hover-border);
         }
 
         caption {
@@ -165,14 +176,14 @@
         }
 
         details {
-            background-color: #e1e1e1;
-            border: 2px outset #adadad;
+            background-color: var(--grey-bgr);
+            border: 2px outset var(--grey-border);
             margin-block: 2px;
             padding: 2px;
         }
 
         h1, h2, h3 {
-            border-bottom: 3px inset #005499;
+            border-bottom: 3px inset var(--heading);
             border-radius: 2px;
             text-align: center;
             margin-block: 4px;
@@ -180,27 +191,27 @@
 
         hr {
             border-style: none;
-            border-top: 4px double #005499;
+            border-top: 4px double var(--heading);
             margin-block: 4px;
             width: 100%;
         }
 
         input {
-            background-color: #befdd6;
-            border: 2px outset #adadad;
+            background-color: var(--inputs);
+            border: 2px outset var(--grey-border);
             font-size: 1em;
         }
 
         input:focus,
         input:hover {
-            background-color: #e5f1fb;
-            border-color: #0078D7;
+            background-color: var(--blue-hover);
+            border-color: var(--blue-hover-border);
         }
 
         select {
-            background-color: #befdd6;
+            background-color: var(--inputs);
             color: #000000;
-            border: 2px outset #adadad;
+            border: 2px outset var(--grey-border);
             border-radius: 0px;
             font-size: 1em;
             margin-block: 2px;
@@ -210,9 +221,9 @@
 
         select:focus,
         select:hover {
-            background-color: #e5f1fb;
+            background-color: var(--blue-hover);
             color: #000000;
-            border-color: #005499;
+            border-color: var(--heading);
         }
 
         select:focus > option,
@@ -238,11 +249,17 @@
         }
 
         tr {
-            background-color: #e5f1fb;
+            background-color: var(--blue-hover);
         }
 
         tr:nth-of-type(even) {
             background-color: #ffbbbb;
+        }
+
+        tr:focus,
+        tr:hover {
+            background-color: #d3d3d3;
+            border: 2px dashed #004985;
         }
 
         /* Elements by ID */
@@ -290,8 +307,8 @@
 
         #author:focus,
         #author:hover {
-            background-color: #e5f1fb;
-            border-color: #0078d7;
+            background-color: var(--blue-hover);
+            border-color: var(--blue-hover-border);
         }
 
         #load-div,
@@ -453,6 +470,7 @@
         .settings-list {
             display: flex;
             flex-direction: column;
+            margin-block: 4px;
             row-gap: 2px;
         }
 
@@ -491,8 +509,8 @@
         }
 
         .player {
-            background-color: #ff4343;
-            border: 0.12em solid #590000;
+            background-color: var(--player);
+            border: 0.12em solid var(--player-border);
             transform: scale(0.9);
             transition: all 0s;
             cursor: progress;
@@ -842,12 +860,37 @@
             Back
         </button>
 
+        <div id='settings-player' class='cell player dir-ne'></div>
+        <hr>
+
         <ul class='settings-list'>
             <li><div class='setting-div'>
-                <label for='set-player-symbol'>Player's symbol</label>
+                <label for='set-player-symbol' id='player-symbol-label'>Player's symbol</label>
                 <input type='text' id='set-player-symbol' placeholder=':)'>
             </div></li>
+
+            <li><div class='setting-div'>
+                <label for='set-player-colour' id='player-colour-label'>Player's colour</label>
+                <input type='color' id='set-player-colour' value='#ff4343'>
+            </div></li>
+
+            <li><div class='setting-div'>
+                <label for='set-player-border-colour' id='player-border-colour-label'>Player's border colour</label>
+                <input type='color' id='set-player-border-colour' value='#590000'>
+            </div></li>
+
+            <li><div class='setting-div'>
+                <label for='set-game-speed' id='game-speed-label'>Step interval (in milliseconds)</label>
+                <input type='number' id='set-game-speed' min='200' max='3000' step='100' value='500'>
+            </div></li>
+
+            <li><div class='setting-div'>
+                <label for='set-game-volume' id='game-volume-label'>Sound volume</label>
+                <input type='number' id='set-game-volume' min='0' max='1' step='0.1' value='0.5'>
+            </div></li>
         </ul>
+
+        <button id='default-settings'>Restore default settings</button>
     </div>
 
     <!-- About div -->
@@ -882,8 +925,20 @@
         /** @type {HTMLDivElement} */
         let about = document.getElementById('about');
 
+        /** @type {HTMLDivElement} */
+        let settingsPlayer = document.getElementById('settings-player');
         /** @type {HTMLInputElement} */
         let playerSymbol = document.getElementById('set-player-symbol');
+        /** @type {HTMLInputElement} */
+        let playerColour = document.getElementById('set-player-colour');
+        /** @type {HTMLInputElement} */
+        let playerBorderColour = document.getElementById('set-player-border-colour');
+        /** @type {HTMLInputElement} */
+        let gameSpeed = document.getElementById('set-game-speed');
+        /** @type {HTMLInputElement} */
+        let gameVolume = document.getElementById('set-game-volume');
+        /** @type {HTMLButtonElement} */
+        let defaultSettings = document.getElementById('default-settings');
 
         /** @type {HTMLHeadingElement} */
         let levelTitle = document.getElementById('level-title');
@@ -924,6 +979,8 @@
              * @param {boolean} resetPos
             */
             create(resetPos) {
+                if (!this.cell) return;
+
                 if (resetPos) {
                     this.x = level.start.x;
                     this.y = level.start.y;
@@ -931,7 +988,7 @@
                     speed.y = level.initSpeed.y;
                 }
 
-                this.cell?.classList.add('player');
+                this.cell.classList.add('player');
                 
                 /** @type {string} */
                 let dir;
@@ -945,8 +1002,8 @@
                 else if (speed.x < 0 && speed.y > 0) dir = 'dir-sw';
                 else if (speed.x > 0 && speed.y > 0) dir = 'dir-se';
 
-                if (dir) this.cell?.classList.add(dir);
-                if (!this.cell?.textContent && playerSymbol.value) {
+                if (dir) this.cell.classList.add(dir);
+                if (!this.cell.textContent && playerSymbol.value) {
                     this.cell.textContent = playerSymbol.value;
                 }
             },
@@ -979,6 +1036,7 @@
                 // Wall collision
                 if (this.cell.classList.contains('wall')) {
                     grid.style.animation = 'lose 0.6s ease';
+                    playSound(105, 0.4);
                     stopGameProcess();
                     this.remove();
                     this.create(true);
@@ -994,6 +1052,7 @@
                         stats.focus();
                     }
                     grid.style.animation = 'win 1s ease';
+                    playSound(400, 0.4);
                     stopGameProcess();
                     this.remove();
                     return;
@@ -1041,6 +1100,7 @@
                 }
 
                 this.advance(1);
+                playSound(70, 0.1);
                 steps ++;
             }
         };
@@ -1067,7 +1127,10 @@
         let blocksUsed = 0;
         /** @type {number} */
         let steps = 0;
+        /** @type {AudioContext} */
+        let audio = new (window.AudioContext || window.webkitAudioContext)();
 
+        // Resetting some elements
         continueButton.disabled = true;
         vectorMenu.value = 'dir-down';
         copyLast.checked = false;
@@ -1075,6 +1138,50 @@
         // Settings' events
         playerSymbol.addEventListener('input', function (event) {
             localStorage.setItem('playerSymbol', playerSymbol.value);
+            settingsPlayer.textContent = playerSymbol.value;
+        });
+        playerColour.addEventListener('input', function (event) {
+            localStorage.setItem('playerColour', playerColour.value);
+            document.body.style.setProperty('--player', playerColour.value);
+        });
+        playerBorderColour.addEventListener('input', function (event) {
+            localStorage.setItem('playerBorderColour', playerBorderColour.value);
+            document.body.style.setProperty('--player-border', playerBorderColour.value);
+        });
+        gameSpeed.addEventListener('click', function (event) {
+            gameSpeed.focus();
+        });
+        gameSpeed.addEventListener('blur', function (event) {
+            gameSpeed.value = clamp(+gameSpeed.min, +gameSpeed.value, +gameSpeed.max);
+            localStorage.setItem('gameSpeed', +gameSpeed.value);
+
+            if (moveInterval) {
+                stopGameProcess();
+                moveInterval = setInterval(function () {
+                    player.processMovement();
+                }, +gameSpeed.value);
+            }
+        });
+        gameVolume.addEventListener('change', function (event) {
+            gameVolume.value = clamp(0, +gameVolume.value, 1);
+            localStorage.setItem('gameVolume', gameVolume.value);
+        });
+        defaultSettings.addEventListener('click', function (event) {
+            playerSymbol.value = '';
+            playerColour.value = '#ff4343';
+            playerBorderColour.value = '#590000';
+            gameSpeed.value = '500';
+            gameVolume.value = '0.5';
+
+            localStorage.setItem('playerSymbol', playerSymbol.value);
+            localStorage.setItem('playerColour', playerColour.value);
+            localStorage.setItem('playerBorderColour', playerBorderColour.value);
+            localStorage.setItem('gameSpeed', gameSpeed.value);
+            localStorage.setItem('gameVolume', gameVolume.value);
+
+            settingsPlayer.textContent = playerSymbol.value;
+            document.body.style.setProperty('--player', playerColour.value);
+            document.body.style.setProperty('--player-border', playerBorderColour.value);
         });
 
         // Exiting on pressing Escape
@@ -1104,7 +1211,7 @@
             if (moveInterval === null) {
                 moveInterval = setInterval(function () {
                     player.processMovement();
-                }, 500);
+                }, +gameSpeed.value);
                 grid.style.animation = 'none';
             }
         });
@@ -1117,7 +1224,6 @@
 
         resetButton.addEventListener('click', function (event) {
             stopGameProcess();
-            blocksUsed = 0;
             fillGrid();
         });
 
@@ -1136,7 +1242,6 @@
 
         loadLevel.addEventListener('input', function (event) {
             loadLevelFromFile(event, loadLevel);
-            blocksUsed = 0;
         });
 
         editorLoadLevel.addEventListener('input', function (event) {
@@ -1209,6 +1314,22 @@
         // Functions
         function loadSettings() {
             playerSymbol.value = localStorage.getItem('playerSymbol') || '';
+            playerColour.value = localStorage.getItem('playerColour') || '#ff4343';
+            playerBorderColour.value = localStorage.getItem('playerBorderColour') || '#590000';
+            gameSpeed.value = clamp(
+                +gameSpeed.min,
+                +localStorage.getItem('gameSpeed') || 500,
+                +gameSpeed.max
+            );
+            gameVolume.value = clamp(
+                0,
+                +localStorage.getItem('gameVolume') || 0.5,
+                1
+            );
+
+            settingsPlayer.textContent = playerSymbol.value;
+            document.body.style.setProperty('--player', playerColour.value);
+            document.body.style.setProperty('--player-border', playerBorderColour.value);
         }
 
         /**
@@ -1362,6 +1483,9 @@
                     getCell(b.x, b.y)?.classList.add('protected');
                 }
             }
+
+            // Reset blocks counter
+            blocksUsed = 0;
         }
 
         /**
@@ -1450,8 +1574,8 @@
                     player.create(true);
                     break; // Never forget `break;` like I did!
                 default:
-                    if (isInEditor) cell.classList.add('protected');
                     cell.classList.add(type);
+                    if (isInEditor) cell.classList.add('protected');
                     break;
             }
             
@@ -1549,6 +1673,29 @@
             if (to === 'game') {
                 getCell(selected.x, selected.y)?.focus();
             }
+        }
+
+        /**
+         * @param {number} frequency
+         * @param {number} duration
+        */
+        function playSound(frequency, duration) {
+            if (!audio) return;
+
+            /** @type {OscillatorNode} */
+            let oscillator = audio.createOscillator();
+            /** @type {GainNode} */
+            let volume = audio.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            oscillator.connect(volume);
+
+            volume.gain.value = +gameVolume.value;
+            volume.connect(audio.destination);
+
+            oscillator.start();
+            oscillator.stop(audio.currentTime + duration);
         }
 
         /**
@@ -1876,6 +2023,42 @@
                         ]
                     },
                     {
+                        "id": "player-symbol-label",
+                        "childNodesTexts": [
+                            "Player's symbol"
+                        ]
+                    },
+                    {
+                        "id": "player-colour-label",
+                        "childNodesTexts": [
+                            "Player's colour"
+                        ]
+                    },
+                    {
+                        "id": "player-border-colour-label",
+                        "childNodesTexts": [
+                            "Player's border colour"
+                        ]
+                    },
+                    {
+                        "id": "game-speed-label",
+                        "childNodesTexts": [
+                            "Step interval (in milliseconds)"
+                        ]
+                    },
+                    {
+                        "id": "game-volume-label",
+                        "childNodesTexts": [
+                            "Sound volume"
+                        ]
+                    },
+                    {
+                        "id": "default-settings",
+                        "childNodesTexts": [
+                            "Restore default settings"
+                        ]
+                    },
+                    {
                         "id": "about-title",
                         "childNodesTexts": [
                             "About"
@@ -1976,13 +2159,13 @@
                     {
                         "id": "stats-steps-label",
                         "childNodesTexts": [
-                            "Число шагов"
+                            "Сделано шагов"
                         ]
                     },
                     {
                         "id": "stats-blocks-label",
                         "childNodesTexts": [
-                            "Использовано блоков"
+                            "Поставлено блоков"
                         ]
                     },
                     {
@@ -2182,6 +2365,42 @@
                         "id": "settings-back",
                         "childNodesTexts": [
                             "Назад"
+                        ]
+                    },
+                    {
+                        "id": "player-symbol-label",
+                        "childNodesTexts": [
+                            "Символ игрока"
+                        ]
+                    },
+                    {
+                        "id": "player-colour-label",
+                        "childNodesTexts": [
+                            "Цвет игрока"
+                        ]
+                    },
+                    {
+                        "id": "player-border-colour-label",
+                        "childNodesTexts": [
+                            "Цвет обводки игрока"
+                        ]
+                    },
+                    {
+                        "id": "game-speed-label",
+                        "childNodesTexts": [
+                            "Интервал шага (в миллисекундах)"
+                        ]
+                    },
+                    {
+                        "id": "game-volume-label",
+                        "childNodesTexts": [
+                            "Громкость звука"
+                        ]
+                    },
+                    {
+                        "id": "default-settings",
+                        "childNodesTexts": [
+                            "Сбросить все настройки"
                         ]
                     },
                     {
