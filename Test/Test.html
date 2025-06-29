@@ -1030,8 +1030,12 @@
                 this.create(false);
             },
             processMovement() {
-                if (game.style.display === 'none') return;
-                if (!this.cell) return; // Should not be true but still
+                if (game.style.display === 'none'
+                    || document.hidden
+                    || !this.cell // Should not be true but still
+                ) {
+                    return
+                };
                 
                 // Wall collision
                 if (this.cell.classList.contains('wall')) {
