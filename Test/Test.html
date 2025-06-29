@@ -1036,10 +1036,14 @@
                 // Wall collision
                 if (this.cell.classList.contains('wall')) {
                     grid.style.animation = 'lose 0.6s ease';
-                    playSound(105, 0.4);
+                    playSound('triangle', [40, 900, 40, 500], 0.5);
                     stopGameProcess();
                     this.remove();
-                    this.create(true);
+                    launchButton.disabled = true;
+                    setTimeout(() => {
+                        launchButton.disabled = false;
+                        this.create(true);
+                    }, 1000);
                     return;
                 }
 
@@ -1052,9 +1056,14 @@
                         stats.focus();
                     }
                     grid.style.animation = 'win 1s ease';
-                    playSound(400, 0.4);
+                    playSound('sine', [40, 1000], 0.5);
                     stopGameProcess();
                     this.remove();
+                    launchButton.disabled = true;
+                    setTimeout(() => {
+                        launchButton.disabled = false;
+                        this.create(true);
+                    }, 1000);
                     return;
                 }
 
@@ -1063,44 +1072,53 @@
                     case 'turn-up':
                         speed.x = 0;
                         speed.y = -1;
+                        playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-down':
                         speed.x = 0;
                         speed.y = 1;
+                        playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-left':
                         speed.x = -1;
                         speed.y = 0;
+                        playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-right':
                         speed.x = 1;
                         speed.y = 0;
+                        playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-nw':
                         speed.x = -1;
                         speed.y = -1;
+                        playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-ne':
                         speed.x = 1;
                         speed.y = -1;
+                        playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-sw':
                         speed.x = -1;
                         speed.y = 1;
+                        playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-se':
                         speed.x = 1;
                         speed.y = 1;
+                        playSound('sine', [40, 250], 0.2);
                         break;
                     case 'jump':
+                        playSound('triangle', [80, 40, 150], 0.2);
                         this.advance(1);
                         break;
                     default:
+                        playSound('sine', [40, 90], 0.2);
                         break;
                 }
 
                 this.advance(1);
-                playSound(70, 0.1);
                 steps ++;
             }
         };
@@ -1676,22 +1694,33 @@
         }
 
         /**
-         * @param {number} frequency
+         * @param {'square' | 'sawtooth' | 'triangle' | 'sine'} type
+         * @param {number[]} frequencies
          * @param {number} duration
         */
-        function playSound(frequency, duration) {
-            if (!audio) return;
+        function playSound(type, frequencies, duration) {
+            if (!audio || +gameVolume.value === 0) return;
 
             /** @type {OscillatorNode} */
             let oscillator = audio.createOscillator();
             /** @type {GainNode} */
             let volume = audio.createGain();
-
-            oscillator.type = 'sine';
-            oscillator.frequency.value = frequency;
+            
+            oscillator.type = type;
+            oscillator.frequency.value = frequencies[0];
+            oscillator.frequency.setValueCurveAtTime(
+                frequencies,
+                audio.currentTime,
+                duration
+            );
             oscillator.connect(volume);
-
+            
             volume.gain.value = +gameVolume.value;
+            volume.gain.setValueCurveAtTime(
+                [0, +gameVolume.value, 0],
+                audio.currentTime,
+                duration
+            );
             volume.connect(audio.destination);
 
             oscillator.start();
