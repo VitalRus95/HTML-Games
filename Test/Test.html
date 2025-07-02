@@ -671,6 +671,10 @@
         </div>
 
         <hr>
+
+        <!-- Standard levels -->
+        <h2>1. Tutorial</h2>
+        <button id='e1m1' onclick='loadStandardLevel(0, 0)'>1. Your goal is here</button>
     </div>
 
     <!-- Game div -->
@@ -969,6 +973,19 @@
         let editorLoadLevel = document.getElementById('editor-load-level');
 
         // Objects
+        /**
+         * @param {{ x: number, y: number }} gridSize
+         * @param {{ x: number, y: number }} start
+         * @param {{ x: number, y: number }} initSpeed
+         * @param {{ x: number, y: number, type: string }[]} blocks
+        */
+        function Level(gridSize, start, initSpeed, blocks) {
+            this.gridSize = gridSize;
+            this.start = start;
+            this.initSpeed = initSpeed;
+            this.blocks = blocks;
+        }
+
         let player = {
             x: 0,
             y: 0,
@@ -982,10 +999,10 @@
                 if (!this.cell) return;
 
                 if (resetPos) {
-                    this.x = level.start.x;
-                    this.y = level.start.y;
-                    speed.x = level.initSpeed.x;
-                    speed.y = level.initSpeed.y;
+                    this.x = currentLevel.start.x;
+                    this.y = currentLevel.start.y;
+                    speed.x = currentLevel.initSpeed.x;
+                    speed.y = currentLevel.initSpeed.y;
                 }
 
                 this.cell.classList.add('player');
@@ -1024,8 +1041,8 @@
             advance(steps) {
                 this.remove();
                 for (let i = 0; i < steps; i++) {
-                    this.x = ringClamp(0, this.x + speed.x, level.gridSize.x - 1);
-                    this.y = ringClamp(0, this.y + speed.y, level.gridSize.y - 1);
+                    this.x = ringClamp(0, this.x + speed.x, currentLevel.gridSize.x - 1);
+                    this.y = ringClamp(0, this.y + speed.y, currentLevel.gridSize.y - 1);
                 }
                 this.create(false);
             },
@@ -1127,12 +1144,22 @@
             }
         };
 
-        let level = {
-            gridSize: { x: 5, y: 5},
-            start: { x: 2, y: 2},
-            initSpeed: { x: 0, y: 1 },
-            blocks: []
-        };
+        let currentLevel = new Level(
+            { x: 5, y: 5}, { x: 2, y: 2 }, { x: 0, y: 1 }, []
+        );
+
+        // Standard levels
+        /** @type {Level[][]} */
+        let standardLevels = [
+            [ // Episode 1
+                new Level( // E1M1
+                    { x: 5, y: 5 },
+                    { x: 2, y: 0 },
+                    { x: 0, y: 1 },
+                    [ { x: 2, y: 4, type: 'finish' } ]
+                )
+            ]
+        ];
 
         // Variables
         /** @type {boolean} */
@@ -1256,7 +1283,7 @@
             saveGridBlocks();
 
             let data = encodeURIComponent(
-                JSON.stringify(level, null, 2)
+                JSON.stringify(currentLevel, null, 2)
             );
             saveLevelButton.download = 'MyLevel.json';
             saveLevelButton.href = `data:text/plain;charset=utf-8,${data}`;
@@ -1279,13 +1306,13 @@
         });
 
         sizeX.addEventListener('blur', function (event) {
-            level.gridSize.x = clamp(+sizeX.min, +sizeX.value, +sizeX.max);
+            currentLevel.gridSize.x = clamp(+sizeX.min, +sizeX.value, +sizeX.max);
             saveGridBlocks();
             fillGrid();
         });
 
         sizeY.addEventListener('blur', function (event) {
-            level.gridSize.y = clamp(+sizeY.min, +sizeY.value, +sizeY.max);
+            currentLevel.gridSize.y = clamp(+sizeY.min, +sizeY.value, +sizeY.max);
             saveGridBlocks();
             fillGrid();
         });
@@ -1295,36 +1322,36 @@
             
             switch (vectorMenu.value) {
                 case 'dir-up':
-                    level.initSpeed.x = 0;
-                    level.initSpeed.y = -1;
+                    currentLevel.initSpeed.x = 0;
+                    currentLevel.initSpeed.y = -1;
                     break;
                 case 'dir-down':
-                    level.initSpeed.x = 0;
-                    level.initSpeed.y = 1;
+                    currentLevel.initSpeed.x = 0;
+                    currentLevel.initSpeed.y = 1;
                     break;
                 case 'dir-right':
-                    level.initSpeed.x = 1;
-                    level.initSpeed.y = 0;
+                    currentLevel.initSpeed.x = 1;
+                    currentLevel.initSpeed.y = 0;
                     break;
                 case 'dir-left':
-                    level.initSpeed.x = -1;
-                    level.initSpeed.y = 0;
+                    currentLevel.initSpeed.x = -1;
+                    currentLevel.initSpeed.y = 0;
                     break;
                 case 'dir-ne':
-                    level.initSpeed.x = 1;
-                    level.initSpeed.y = -1;
+                    currentLevel.initSpeed.x = 1;
+                    currentLevel.initSpeed.y = -1;
                     break;
                 case 'dir-se':
-                    level.initSpeed.x = 1;
-                    level.initSpeed.y = 1;
+                    currentLevel.initSpeed.x = 1;
+                    currentLevel.initSpeed.y = 1;
                     break;
                 case 'dir-sw':
-                    level.initSpeed.x = -1;
-                    level.initSpeed.y = 1;
+                    currentLevel.initSpeed.x = -1;
+                    currentLevel.initSpeed.y = 1;
                     break;
                 case 'dir-nw':
-                    level.initSpeed.x = -1;
-                    level.initSpeed.y = -1;
+                    currentLevel.initSpeed.x = -1;
+                    currentLevel.initSpeed.y = -1;
                     break;
                 default:
                     break;
@@ -1361,18 +1388,19 @@
         async function loadLevelFromFile(event, input) {
             await input.files[0].text().then((data) => {
                 try {
-                    level = JSON.parse(data);
+                    currentLevel = JSON.parse(data);
+                    fillGrid();
                 } catch (error) {
                     alert(`Error while loading the level: ${error}`);
-                    level = {
+                    currentLevel = {
                         gridSize: { x: 5, y: 5},
                         start: { x: 2, y: 2},
                         initSpeed: { x: 0, y: 1 },
                         blocks: []
                     };
+                    fillGrid();
                 } finally {
                     levelTitle.textContent = input.files[0].name.replace('.json', '');
-                    fillGrid();
                     if (input === loadLevel) {
                         startGame('levels', false);
                     }
@@ -1382,6 +1410,18 @@
             });
         }
 
+        /**
+         * @param {number} episode
+         * @param {number} map
+        */
+        function loadStandardLevel(episode, map) {
+            /** @type {Level} */
+            let sl = standardLevels[episode][map];
+            currentLevel = new Level(sl.gridSize, sl.start, sl.initSpeed, sl.blocks);
+            fillGrid();
+            startGame('levels', false);
+        }
+
         function fillGrid() {
             // Reset everything
             while (grid.hasChildNodes()) grid.lastChild.remove();
@@ -1389,18 +1429,18 @@
             stopGameProcess();
 
             // Set X and Y dimenstions in the editor
-            sizeX.value = level.gridSize.x;
-            sizeY.value = level.gridSize.y;
+            sizeX.value = currentLevel.gridSize.x;
+            sizeY.value = currentLevel.gridSize.y;
 
             // Create rows and cells
-            for (let y = 0; y < level.gridSize.y; y++) {
+            for (let y = 0; y < currentLevel.gridSize.y; y++) {
                 /** @type {HTMLDivElement} */
                 let row = grid.appendChild(
                     document.createElement('div')
                 );
                 row.classList.add('row');
 
-                for (let x = 0; x < level.gridSize.x; x++) {
+                for (let x = 0; x < currentLevel.gridSize.x; x++) {
                     /** @type {HTMLDivElement} */
                     let cell = row.appendChild(
                         document.createElement('div')
@@ -1414,27 +1454,27 @@
                                 event.preventDefault();
                                 getCell(
                                     x,
-                                    ringClamp(0, y - 1, level.gridSize.y - 1)
+                                    ringClamp(0, y - 1, currentLevel.gridSize.y - 1)
                                 )?.focus();
                                 break;
                             case 'ArrowDown':
                                 event.preventDefault();
                                 getCell(
                                     x,
-                                    ringClamp(0, y + 1, level.gridSize.y - 1)
+                                    ringClamp(0, y + 1, currentLevel.gridSize.y - 1)
                                 )?.focus();
                                 break;
                             case 'ArrowLeft':
                                 event.preventDefault();
                                 getCell(
-                                    ringClamp(0, x - 1, level.gridSize.x - 1),
+                                    ringClamp(0, x - 1, currentLevel.gridSize.x - 1),
                                     y
                                 )?.focus();
                                 break;
                             case 'ArrowRight':
                                 event.preventDefault();
                                 getCell(
-                                    ringClamp(0, x + 1, level.gridSize.x - 1),
+                                    ringClamp(0, x + 1, currentLevel.gridSize.x - 1),
                                     y
                                 )?.focus();
                                 break;
@@ -1499,8 +1539,8 @@
             player.create(true);
 
             // Fill special cells
-            if (level.blocks) {
-                for (let b of level.blocks) {
+            if (currentLevel.blocks) {
+                for (let b of currentLevel.blocks) {
                     setCell(b.x, b.y, b.type);
                     getCell(b.x, b.y)?.classList.add('protected');
                 }
@@ -1522,22 +1562,22 @@
             /** @type {number} */
             let y = dir === 'S' ? 1 : dir === 'N' ? -1 : 0;
 
-            level.start.x = ringClamp(0, level.start.x + x, level.gridSize.x - 1);
-            level.start.y = ringClamp(0, level.start.y + y, level.gridSize.y - 1);
+            currentLevel.start.x = ringClamp(0, currentLevel.start.x + x, currentLevel.gridSize.x - 1);
+            currentLevel.start.y = ringClamp(0, currentLevel.start.y + y, currentLevel.gridSize.y - 1);
 
-            for (let block of level.blocks) {
-                block.x = ringClamp(0, block.x + x, level.gridSize.x - 1);
-                block.y = ringClamp(0, block.y + y, level.gridSize.y - 1);
+            for (let block of currentLevel.blocks) {
+                block.x = ringClamp(0, block.x + x, currentLevel.gridSize.x - 1);
+                block.y = ringClamp(0, block.y + y, currentLevel.gridSize.y - 1);
             }
 
             fillGrid();
         }
 
         function saveGridBlocks() {
-            level.blocks = [];
+            currentLevel.blocks = [];
 
-            for (let y = 0; y < level.gridSize.y; y++) {
-                for (let x = 0; x < level.gridSize.x; x++) {
+            for (let y = 0; y < currentLevel.gridSize.y; y++) {
+                for (let x = 0; x < currentLevel.gridSize.x; x++) {
                     /** @type {HTMLDivElement} */
                     let cell = getCell(x, y);
 
@@ -1545,7 +1585,7 @@
                         && cell.classList.length > 1
                         && cell.classList.item(1) !== 'player'
                     ) {
-                        level.blocks.push({
+                        currentLevel.blocks.push({
                             x: x,
                             y: y,
                             type: cell.classList.item(1)
@@ -1590,8 +1630,8 @@
                     cell.textContent = '';
                     break;
                 case 'player':
-                    level.start.x = x;
-                    level.start.y = y;
+                    currentLevel.start.x = x;
+                    currentLevel.start.y = y;
                     player.remove();
                     player.create(true);
                     break; // Never forget `break;` like I did!
