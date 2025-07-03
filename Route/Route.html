@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game</title>
+    <title>Route</title>
     <style>
         /* Animations */
         @keyframes lose {
@@ -187,6 +187,18 @@
             border-radius: 2px;
             text-align: center;
             margin-block: 4px;
+        }
+
+        h1 {
+            font-size: 1.9em;
+        }
+
+        h2 {
+            font-size: 1.5em;
+        }
+
+        h3 {
+            font-size: 1.25em;
         }
 
         hr {
@@ -632,7 +644,7 @@
     
     <!-- Main menu div -->
     <div id='menu' tabindex='1'>
-        <h1 id='title'>Game</h1>
+        <h1 id='title'>Route</h1>
 
         <select id='lang' tabindex='0'></select>
 
@@ -673,13 +685,15 @@
         <hr>
 
         <!-- Standard levels -->
-        <h2>1. Tutorial</h2>
-        <button id='e1m1' onclick='loadStandardLevel(0, 0)'>1. Your goal is here</button>
+        <h2 id='e1'>1. Tutorial</h2>
+        <button id='e1m1' onclick='loadStandardLevel(this, 0, 0)'>1.1. Your goal is here</button>
+        <button id='e1m2' onclick='loadStandardLevel(this, 0, 1)'>1.2. Over the edge</button>
+        <button id='e1m3' onclick='loadStandardLevel(this, 0, 2)'>1.3. A new turn</button>
     </div>
 
     <!-- Game div -->
     <div id='game' tabindex='0'>
-        <h2 id='level-title'></h2>
+        <h3 id='level-title'></h3>
 
         <button id='game-back' onclick='pauseGame()'>
             Back
@@ -1156,7 +1170,26 @@
                     { x: 5, y: 5 },
                     { x: 2, y: 0 },
                     { x: 0, y: 1 },
-                    [ { x: 2, y: 4, type: 'finish' } ]
+                    [
+                        { x: 2, y: 4, type: 'finish' }
+                    ]
+                ),
+                new Level( // E1M2
+                    { x: 5, y: 5 },
+                    { x: 2, y: 3 },
+                    { x: 0, y: 1 },
+                    [
+                        { x: 2, y: 2, type: 'finish' }
+                    ]
+                ),
+                new Level( // E1M3
+                    { x: 5, y: 5 },
+                    { x: 0, y: 0 },
+                    { x: 0, y: 1 },
+                    [
+                        { x: 0, y: 4, type: 'turn-right' },
+                        { x: 4, y: 4, type: 'finish' }
+                    ]
                 )
             ]
         ];
@@ -1287,6 +1320,9 @@
             );
             saveLevelButton.download = 'MyLevel.json';
             saveLevelButton.href = `data:text/plain;charset=utf-8,${data}`;
+            console.log(`new Level(\n\t{ x: ${currentLevel.gridSize.x}, y: ${currentLevel.gridSize.y} },\n\t{ x: ${currentLevel.start.x}, y: ${currentLevel.start.y} },\n\t{ x: ${currentLevel.initSpeed.x}, y: ${currentLevel.initSpeed.y} },\n\t[${currentLevel.blocks.map(
+                b => {return `\n\t\t{ x: ${b.x}, y: ${b.y}, type: '${b.type}' }`}
+            )}\n\t]\n)`);
         });
 
         loadLevel.addEventListener('input', function (event) {
@@ -1411,13 +1447,15 @@
         }
 
         /**
+         * @param {HTMLButtonElement} button
          * @param {number} episode
          * @param {number} map
         */
-        function loadStandardLevel(episode, map) {
+        function loadStandardLevel(button, episode, map) {
             /** @type {Level} */
             let sl = standardLevels[episode][map];
             currentLevel = new Level(sl.gridSize, sl.start, sl.initSpeed, sl.blocks);
+            levelTitle.textContent = button.textContent;
             fillGrid();
             startGame('levels', false);
         }
@@ -1813,7 +1851,7 @@
                     {
                         "id": "title",
                         "childNodesTexts": [
-                            "Game"
+                            "Route"
                         ]
                     },
                     {
@@ -1870,6 +1908,30 @@
                         "id": "load-label",
                         "childNodesTexts": [
                             "Load level"
+                        ]
+                    },
+                    {
+                        "id": "e1",
+                        "childNodesTexts": [
+                            "1. Tutorial"
+                        ]
+                    },
+                    {
+                        "id": "e1m1",
+                        "childNodesTexts": [
+                            "1.1. Your goal is here"
+                        ]
+                    },
+                    {
+                        "id": "e1m2",
+                        "childNodesTexts": [
+                            "1.2. Over the edge"
+                        ]
+                    },
+                    {
+                        "id": "e1m3",
+                        "childNodesTexts": [
+                            "1.3. A new turn"
                         ]
                     },
                     {
@@ -2158,7 +2220,7 @@
                     {
                         "id": "title",
                         "childNodesTexts": [
-                            "Игра"
+                            "Маршрут"
                         ]
                     },
                     {
@@ -2215,6 +2277,30 @@
                         "id": "load-label",
                         "childNodesTexts": [
                             "Загрузить уровень"
+                        ]
+                    },
+                    {
+                        "id": "e1",
+                        "childNodesTexts": [
+                            "1. Обучение"
+                        ]
+                    },
+                    {
+                        "id": "e1m1",
+                        "childNodesTexts": [
+                            "1.1. Твоя цель здесь"
+                        ]
+                    },
+                    {
+                        "id": "e1m2",
+                        "childNodesTexts": [
+                            "1.2. Через край"
+                        ]
+                    },
+                    {
+                        "id": "e1m3",
+                        "childNodesTexts": [
+                            "1.3. Новый поворот"
                         ]
                     },
                     {
