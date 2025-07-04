@@ -84,6 +84,12 @@
             transition: all 0.4s ease;
         }
 
+        .player.teleport {
+            background-color: var(--player);
+            transform: scale(0.1);
+            transition: all 0.3s ease;
+        }
+
         .player.finish {
             background-color: var(--player);
             animation: finish 0.7s ease;
@@ -281,6 +287,7 @@
 
         #menu,
         #game,
+        #stats,
         #levels,
         #blocks,
         #editor,
@@ -467,6 +474,10 @@
             border-right-width: 0.45em;
         }
 
+        #blocks-list > button > .teleport {
+            border-width: 0.3375em;
+        }
+
         /* Classes */
         .buttons-div {
             display: flex;
@@ -488,6 +499,22 @@
 
         .editor-only {
             display: none;
+        }
+
+        .episode {
+            display: flex;
+            flex-direction: column;
+            border: 2px inset #747474;
+            border-radius: 2px;
+            border-top-style: none;
+            margin-top: 0px;
+            padding-block: 2px;
+            padding-inline: 4px;
+        }
+
+        .episode > button {
+            justify-content: left;
+            padding-left: 2%;
         }
 
         .row {
@@ -631,6 +658,12 @@
             transition: all 0.2s ease;
         }
 
+        .teleport {
+            background-color: #6c85ff;
+            border: 0.4125em ridge #e66d59;
+            transition: all 0.4s ease;
+        }
+
         .finish {
             background-color: #a2ff89;
             border: 0.3em double #000000;
@@ -675,20 +708,35 @@
             Back
         </button>
 
-        <button id='continue' onclick='startGame("levels", false)' disabled>Continue</button>
+        <button id='continue'>Continue</button>
+
+        <button id='nextLevelFromMenu' onclick='nextStandardLevel()'>Next level</button>
 
         <div id='load-div' class='pseudo-button'>
             <label id='load-label' for='load-level'>Load level</label>
             <input id='load-level' type='file' accept='.json'>
         </div>
 
-        <hr>
-
         <!-- Standard levels -->
-        <h2 id='e1'>1. Tutorial</h2>
-        <button id='e1m1' onclick='loadStandardLevel(this, 0, 0)'>1.1. Your goal is here</button>
-        <button id='e1m2' onclick='loadStandardLevel(this, 0, 1)'>1.2. Over the edge</button>
-        <button id='e1m3' onclick='loadStandardLevel(this, 0, 2)'>1.3. A new turn</button>
+        <h2 id='e1'>1. Theory</h2>
+        <div class='episode'>
+            <button id='e1m1' onclick='loadStandardLevel(this, 0, 0)'>1.1. Your goal is here</button>
+            <button id='e1m2' onclick='loadStandardLevel(this, 0, 1)'>1.2. Over the edge</button>
+            <button id='e1m3' onclick='loadStandardLevel(this, 0, 2)'>1.3. New turn</button>
+            <button id='e1m4' onclick='loadStandardLevel(this, 0, 3)'>1.4. Teleportation</button>
+            <button id='e1m5' onclick='loadStandardLevel(this, 0, 4)'>1.5. Diagonal</button>
+        </div>
+
+        <h2 id='e2'>2. Practice</h2>
+        <div class='episode'>
+            <button id='e2m1' onclick='loadStandardLevel(this, 1, 0)'>2.1. Tiny wall</button>
+            <button id='e2m2' onclick='loadStandardLevel(this, 1, 1)'>2.2. Breach</button>
+        </div>
+
+        <h2 id='e3'>3. Creativity</h2>
+        <div class='episode'>
+            <button id='e3m1' onclick='loadStandardLevel(this, 2, 0)'>3.1. Pipes</button>
+        </div>
     </div>
 
     <!-- Game div -->
@@ -701,18 +749,20 @@
 
         <!-- Statistics -->
         <div id='stats' tabindex='0'>
+            <button id='nextLevelFromStats' onclick='nextStandardLevel()'>Next level</button>
+
             <table>
                 <caption id='stats-label' tabindex='0'>Victory!</caption>
 
                 <tbody>
                     <tr>
                         <td id='stats-steps-label' tabindex='0'>Steps taken</td>
-                        <td id='stats-steps-value' tabindex='0'>0</td>
+                        <td id='stats-steps-value' tabindex='0'></td>
                     </tr>
 
                     <tr>
                         <td id='stats-blocks-label' tabindex='0'>Blocks used</td>
-                        <td id='stats-blocks-value' tabindex='0'>0</td>
+                        <td id='stats-blocks-value' tabindex='0'></td>
                     </tr>
                 </tbody>
             </table>
@@ -828,6 +878,11 @@
                 <div class='cell jump'></div>
             </button>
 
+            <button id='blocks-teleport' onclick='setCellAndReturn(selected.x, selected.y, "teleport")'>
+                Teleport to start
+                <div class='cell teleport'></div>
+            </button>
+
             <button id='blocks-n' onclick='setCellAndReturn(selected.x, selected.y, "turn-up")'>
                 Turn N
                 <div class='cell turn-up'></div>
@@ -884,7 +939,7 @@
         <ul class='settings-list'>
             <li><div class='setting-div'>
                 <label for='set-player-symbol' id='player-symbol-label'>Player's symbol</label>
-                <input type='text' id='set-player-symbol' placeholder=':)'>
+                <input type='text' id='set-player-symbol'>
             </div></li>
 
             <li><div class='setting-div'>
@@ -1009,10 +1064,8 @@
             /**
              * @param {boolean} resetPos
             */
-            create(resetPos) {
-                if (!this.cell) return;
-
-                if (resetPos) {
+            create(reset) {
+                if (reset) {
                     this.x = currentLevel.start.x;
                     this.y = currentLevel.start.y;
                     speed.x = currentLevel.initSpeed.x;
@@ -1107,53 +1160,68 @@
                     case 'turn-up':
                         speed.x = 0;
                         speed.y = -1;
+                        this.advance(1);
                         playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-down':
                         speed.x = 0;
                         speed.y = 1;
+                        this.advance(1);
                         playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-left':
                         speed.x = -1;
                         speed.y = 0;
+                        this.advance(1);
                         playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-right':
                         speed.x = 1;
                         speed.y = 0;
+                        this.advance(1);
                         playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-nw':
                         speed.x = -1;
                         speed.y = -1;
+                        this.advance(1);
                         playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-ne':
                         speed.x = 1;
                         speed.y = -1;
+                        this.advance(1);
                         playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-sw':
                         speed.x = -1;
                         speed.y = 1;
+                        this.advance(1);
                         playSound('sine', [40, 250], 0.2);
                         break;
                     case 'turn-se':
                         speed.x = 1;
                         speed.y = 1;
+                        this.advance(1);
                         playSound('sine', [40, 250], 0.2);
                         break;
                     case 'jump':
                         playSound('triangle', [80, 40, 150], 0.2);
-                        this.advance(1);
+                        this.advance(2);
+                        break;
+                    case 'teleport':
+                        this.remove();
+                        this.x = currentLevel.start.x;
+                        this.y = currentLevel.start.y;
+                        this.create(false);
+                        playSound('sine', [40, 500], 0.2);
                         break;
                     default:
+                        this.advance(1);
                         playSound('sine', [40, 90], 0.2);
                         break;
                 }
 
-                this.advance(1);
                 steps ++;
             }
         };
@@ -1165,7 +1233,7 @@
         // Standard levels
         /** @type {Level[][]} */
         let standardLevels = [
-            [ // Episode 1
+            [ // Episode 1. Theory
                 new Level( // E1M1
                     { x: 5, y: 5 },
                     { x: 2, y: 0 },
@@ -1190,6 +1258,97 @@
                         { x: 0, y: 4, type: 'turn-right' },
                         { x: 4, y: 4, type: 'finish' }
                     ]
+                ),
+                new Level( // E1M4
+                    { x: 5, y: 5 },
+                    { x: 0, y: 0 },
+                    { x: 0, y: 1 },
+                    [
+                        { x: 4, y: 0, type: 'finish' },
+                        { x: 0, y: 4, type: 'turn-right' },
+                        { x: 4, y: 4, type: 'teleport' }
+                    ]
+                ),
+                new Level( // E1M5
+                    { x: 5, y: 5 },
+                    { x: 0, y: 0 },
+                    { x: 1, y: 1 },
+                    [
+                        { x: 4, y: 0, type: 'finish' },
+                        { x: 0, y: 4, type: 'turn-ne' },
+                        { x: 4, y: 4, type: 'turn-left' }
+                    ]
+                )
+            ],
+            [ // Episode 2. Practice
+                new Level( // E2M1
+                    { x: 5, y: 5 },
+                    { x: 0, y: 4 },
+                    { x: 0, y: -1 },
+                    [
+                        { x: 1, y: 1, type: 'wall' },
+                        { x: 1, y: 2, type: 'wall' },
+                        { x: 2, y: 2, type: 'finish' },
+                        { x: 1, y: 3, type: 'wall' }
+                    ]
+                ),
+                new Level( // E2M2
+                    { x: 5, y: 5 },
+                    { x: 0, y: 1 },
+                    { x: -1, y: 1 },
+                    [
+                        { x: 1, y: 0, type: 'wall' },
+                        { x: 2, y: 0, type: 'wall' },
+                        { x: 3, y: 0, type: 'wall' },
+                        { x: 1, y: 1, type: 'wall' },
+                        { x: 2, y: 1, type: 'finish' },
+                        { x: 3, y: 1, type: 'wall' },
+                        { x: 2, y: 2, type: 'wall' }
+                    ]
+                )
+            ],
+            [ // Episode 3. Creativity
+                new Level( // E3M1
+                    { x: 10, y: 7 },
+                    { x: 9, y: 2 },
+                    { x: -1, y: 0 },
+                    [
+                        { x: 0, y: 0, type: 'wall' },
+                        { x: 1, y: 0, type: 'wall' },
+                        { x: 2, y: 0, type: 'wall' },
+                        { x: 0, y: 1, type: 'finish' },
+                        { x: 2, y: 1, type: 'wall' },
+                        { x: 4, y: 1, type: 'wall' },
+                        { x: 5, y: 1, type: 'wall' },
+                        { x: 6, y: 1, type: 'wall' },
+                        { x: 7, y: 1, type: 'wall' },
+                        { x: 8, y: 1, type: 'wall' },
+                        { x: 9, y: 1, type: 'wall' },
+                        { x: 0, y: 2, type: 'wall' },
+                        { x: 2, y: 2, type: 'wall' },
+                        { x: 4, y: 2, type: 'wall' },
+                        { x: 0, y: 3, type: 'wall' },
+                        { x: 2, y: 3, type: 'wall' },
+                        { x: 4, y: 3, type: 'wall' },
+                        { x: 6, y: 3, type: 'wall' },
+                        { x: 7, y: 3, type: 'wall' },
+                        { x: 8, y: 3, type: 'wall' },
+                        { x: 9, y: 3, type: 'wall' },
+                        { x: 0, y: 4, type: 'wall' },
+                        { x: 2, y: 4, type: 'wall' },
+                        { x: 3, y: 4, type: 'wall' },
+                        { x: 4, y: 4, type: 'wall' },
+                        { x: 6, y: 4, type: 'wall' },
+                        { x: 0, y: 5, type: 'wall' },
+                        { x: 6, y: 5, type: 'wall' },
+                        { x: 0, y: 6, type: 'wall' },
+                        { x: 1, y: 6, type: 'wall' },
+                        { x: 2, y: 6, type: 'wall' },
+                        { x: 3, y: 6, type: 'wall' },
+                        { x: 4, y: 6, type: 'wall' },
+                        { x: 5, y: 6, type: 'wall' },
+                        { x: 6, y: 6, type: 'wall' }
+                    ]
                 )
             ]
         ];
@@ -1209,11 +1368,15 @@
         let blocksUsed = 0;
         /** @type {number} */
         let steps = 0;
+        /** @type {number} */
+        let currentEpisode = 0;
+        /** @type {number} */
+        let currentMap = 0;
         /** @type {AudioContext} */
         let audio = new (window.AudioContext || window.webkitAudioContext)();
 
-        // Resetting some elements
-        continueButton.disabled = true;
+        // Resetting some elements & loading settings
+        loadSettings();
         vectorMenu.value = 'dir-down';
         copyLast.checked = false;
 
@@ -1284,6 +1447,19 @@
         });
 
         // Other events
+        continueButton.addEventListener('click', function (event) {
+            if (grid.hasChildNodes()) {
+                startGame("levels", false);
+            } else {
+                loadStandardLevel(
+                    document.getElementById(
+                        `e${currentEpisode + 1}m${currentMap + 1}`
+                    ),
+                    currentEpisode, currentMap
+                );
+            }
+        });
+
         launchButton.addEventListener('click', function (event) {
             steps = 0;
             player.remove();
@@ -1398,6 +1574,8 @@
 
         // Functions
         function loadSettings() {
+            currentEpisode = +localStorage.getItem('episode') || 0;
+            currentMap = +localStorage.getItem('map') || 0;
             playerSymbol.value = localStorage.getItem('playerSymbol') || '';
             playerColour.value = localStorage.getItem('playerColour') || '#ff4343';
             playerBorderColour.value = localStorage.getItem('playerBorderColour') || '#590000';
@@ -1437,6 +1615,7 @@
                     fillGrid();
                 } finally {
                     levelTitle.textContent = input.files[0].name.replace('.json', '');
+                    stats.style.display = 'none';
                     if (input === loadLevel) {
                         startGame('levels', false);
                     }
@@ -1454,17 +1633,45 @@
         function loadStandardLevel(button, episode, map) {
             /** @type {Level} */
             let sl = standardLevels[episode][map];
+            if (!sl) return;
+
+            localStorage.setItem('episode', episode);
+            localStorage.setItem('map', map);
+            currentEpisode = episode;
+            currentMap = map;
             currentLevel = new Level(sl.gridSize, sl.start, sl.initSpeed, sl.blocks);
-            levelTitle.textContent = button.textContent;
+            levelTitle.textContent = button.textContent || '';
+            stats.style.display = 'none';
             fillGrid();
             startGame('levels', false);
         }
 
+        function nextStandardLevel() {
+            currentMap ++;
+            
+            if (!standardLevels[currentEpisode][currentMap]) {
+                currentEpisode ++;
+                currentMap = 0;
+
+                if (!standardLevels[currentEpisode]) {
+                    currentEpisode = 1;
+                }
+            }
+
+            /** @type {HTMLButtonElement} */
+            let button = document.getElementById(
+                `e${currentEpisode + 1}m${currentMap + 1}`
+            );
+            
+            loadStandardLevel(button, currentEpisode, currentMap);
+        }
+
         function fillGrid() {
             // Reset everything
-            while (grid.hasChildNodes()) grid.lastChild.remove();
-            continueButton.disabled = false;
+            player.remove();
             stopGameProcess();
+            continueButton.disabled = false;
+            while (grid.hasChildNodes()) grid.lastChild.remove();
 
             // Set X and Y dimenstions in the editor
             sizeX.value = currentLevel.gridSize.x;
@@ -1573,7 +1780,6 @@
             }
 
             // Add player
-            player.remove();
             player.create(true);
 
             // Fill special cells
@@ -1905,6 +2111,12 @@
                         ]
                     },
                     {
+                        "id": "nextLevelFromMenu",
+                        "childNodesTexts": [
+                            "Next level"
+                        ]
+                    },
+                    {
                         "id": "load-label",
                         "childNodesTexts": [
                             "Load level"
@@ -1913,7 +2125,7 @@
                     {
                         "id": "e1",
                         "childNodesTexts": [
-                            "1. Tutorial"
+                            "1. Theory"
                         ]
                     },
                     {
@@ -1931,13 +2143,61 @@
                     {
                         "id": "e1m3",
                         "childNodesTexts": [
-                            "1.3. A new turn"
+                            "1.3. New turn"
+                        ]
+                    },
+                    {
+                        "id": "e1m4",
+                        "childNodesTexts": [
+                            "1.4. Teleportation"
+                        ]
+                    },
+                    {
+                        "id": "e1m5",
+                        "childNodesTexts": [
+                            "1.5. Diagonal"
+                        ]
+                    },
+                    {
+                        "id": "e2",
+                        "childNodesTexts": [
+                            "2. Practice"
+                        ]
+                    },
+                    {
+                        "id": "e2m1",
+                        "childNodesTexts": [
+                            "2.1. Tiny wall"
+                        ]
+                    },
+                    {
+                        "id": "e2m2",
+                        "childNodesTexts": [
+                            "2.2. Breach"
+                        ]
+                    },
+                    {
+                        "id": "e3",
+                        "childNodesTexts": [
+                            "3. Creativity"
+                        ]
+                    },
+                    {
+                        "id": "e3m1",
+                        "childNodesTexts": [
+                            "3.1. Pipes"
                         ]
                     },
                     {
                         "id": "game-back",
                         "childNodesTexts": [
                             "Back"
+                        ]
+                    },
+                    {
+                        "id": "nextLevelFromStats",
+                        "childNodesTexts": [
+                            "Next level"
                         ]
                     },
                     {
@@ -2095,6 +2355,12 @@
                         "id": "blocks-jump",
                         "childNodesTexts": [
                             "Jump"
+                        ]
+                    },
+                    {
+                        "id": "blocks-teleport",
+                        "childNodesTexts": [
+                            "Teleport to start"
                         ]
                     },
                     {
@@ -2274,6 +2540,12 @@
                         ]
                     },
                     {
+                        "id": "nextLevelFromMenu",
+                        "childNodesTexts": [
+                            "Следующий уровень"
+                        ]
+                    },
+                    {
                         "id": "load-label",
                         "childNodesTexts": [
                             "Загрузить уровень"
@@ -2282,7 +2554,7 @@
                     {
                         "id": "e1",
                         "childNodesTexts": [
-                            "1. Обучение"
+                            "1. Теория"
                         ]
                     },
                     {
@@ -2304,9 +2576,57 @@
                         ]
                     },
                     {
+                        "id": "e1m4",
+                        "childNodesTexts": [
+                            "1.4. Телепортация"
+                        ]
+                    },
+                    {
+                        "id": "e1m5",
+                        "childNodesTexts": [
+                            "1.5. Диагональ"
+                        ]
+                    },
+                    {
+                        "id": "e2",
+                        "childNodesTexts": [
+                            "2. Практика"
+                        ]
+                    },
+                    {
+                        "id": "e2m1",
+                        "childNodesTexts": [
+                            "2.1. Стеночка"
+                        ]
+                    },
+                    {
+                        "id": "e2m2",
+                        "childNodesTexts": [
+                            "2.2. Брешь"
+                        ]
+                    },
+                    {
+                        "id": "e3",
+                        "childNodesTexts": [
+                            "3. Творчество"
+                        ]
+                    },
+                    {
+                        "id": "e3m1",
+                        "childNodesTexts": [
+                            "3.1. Трубы"
+                        ]
+                    },
+                    {
                         "id": "game-back",
                         "childNodesTexts": [
                             "Назад"
+                        ]
+                    },
+                    {
+                        "id": "nextLevelFromStats",
+                        "childNodesTexts": [
+                            "Следующий уровень"
                         ]
                     },
                     {
@@ -2467,6 +2787,12 @@
                         ]
                     },
                     {
+                        "id": "blocks-teleport",
+                        "childNodesTexts": [
+                            "Перенос на старт"
+                        ]
+                    },
+                    {
                         "id": "blocks-n",
                         "childNodesTexts": [
                             "На С"
@@ -2577,8 +2903,6 @@
                 ]
             }
         ]);
-
-        loadSettings();
 
         /**
          * @typedef {Object} Translation
