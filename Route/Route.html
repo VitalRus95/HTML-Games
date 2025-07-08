@@ -356,7 +356,7 @@
         }
 
         #shift-all-div > button {
-            width: 2.5em;
+            min-width: 2em;
             height: 2em;
             cursor: pointer;
         }
@@ -614,45 +614,53 @@
 
         .turn-up {
             border-top-width: 0.55em;
+            border-radius: 50% 50% 8px 8px;
             cursor: n-resize;
         }
 
         .turn-down {
             border-bottom-width: 0.55em;
+            border-radius: 8px 8px 50% 50%;
             cursor: s-resize;
         }
 
         .turn-left {
             border-left-width: 0.55em;
+            border-radius: 50% 8px 8px 50%;
             cursor: w-resize;
         }
 
         .turn-right {
             border-right-width: 0.55em;
+            border-radius: 8px 50% 50% 8px;
             cursor: e-resize;
         }
 
         .turn-nw {
             border-top-width: 0.55em;
             border-left-width: 0.55em;
+            border-radius: 50% 8px 8px 8px;
             cursor: nw-resize;
         }
 
         .turn-ne {
             border-top-width: 0.55em;
             border-right-width: 0.55em;
+            border-radius: 8px 50% 8px 8px;
             cursor: ne-resize;
         }
 
         .turn-sw {
             border-bottom-width: 0.55em;
             border-left-width: 0.55em;
+            border-radius: 8px 8px 8px 50%;
             cursor: sw-resize;
         }
 
         .turn-se {
             border-bottom-width: 0.55em;
             border-right-width: 0.55em;
+            border-radius: 8px 8px 50% 8px;
             cursor: se-resize;
         }
 
