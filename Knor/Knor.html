@@ -3,37 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game</title>
+    <title>Knor</title>
     <style>
         /* Animations */
-
+        
         /* All elements */
         :root {
-            --grey-bgr: #e1e1e1;
-            --grey-border: #adadad;
-            --heading: #005499;
-            --inputs: #befdd6;
-            --blue-hover: #e5f1fb;
+            --grey-bgr: #252525;
+            --grey-border: #bbbbbb;
+            --heading: #ffddaa;
+            --inputs: #3a3a3a;
+            --blue-hover: #141441;
             --blue-hover-border: #0078d7;
         }
         
         * {
-            color: #000000;
+            color: #fffeea;
             box-sizing: border-box;
             -moz-box-sizing: border-box;
             -webkit-box-sizing: border-box;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
-
+        
         /* Elements by tag */
         html {
             align-content: center;
-            background-color: #f1dac4;
-            background-image: linear-gradient(60deg, #e9a2a2, transparent, #b2e0e7);
+            background-color: #1d3d3d;
+            background-image: linear-gradient(45deg, #000f0f, transparent, #2a2f00);
             background-attachment: fixed;
             height: 100%;
         }
-
+        
         body {
             display: flex;
             background-color: transparent;
@@ -43,16 +43,15 @@
             min-width: 40%;
             max-width: 90%;
         }
-
+        
         @media (min-width: 720px) {
             body { max-width: 60%; }
         }
-
+        
         a {
             background-color: transparent;
-            color: #000000;
         }
-
+        
         button,
         .pseudo-button {
             display: flex;
@@ -61,22 +60,22 @@
             justify-content: center;
             text-decoration: none;
             background-color: var(--grey-bgr);
-            color: #000000;
             border: 2px outset var(--grey-border);
+            border-radius: 4px;
             font-size: 1em;
             font-weight: 600;
             margin-block: 2px;
             padding: 2px;
             min-height: 1.7em;
         }
-
+        
         button:disabled,
         .pseudo-button:disabled {
-            background-color: #cccccc;
-            color: #3d3d3d;
+            background-color: #101010;
+            color: #535353;
             cursor: not-allowed;
         }
-
+        
         button:focus,
         button:hover,
         .pseudo-button:focus,
@@ -84,53 +83,55 @@
             background-color: var(--blue-hover);
             border-color: var(--blue-hover-border);
         }
-
+        
         caption {
             font-size: 1.1em;
             font-style: italic;
             font-weight: 600;
         }
-
+        
         details {
             background-color: var(--grey-bgr);
             border: 2px outset var(--grey-border);
+            border-radius: 4px;
             margin-block: 2px;
             padding: 2px;
         }
-
+        
         h1, h2, h3 {
             border-bottom: 3px inset var(--heading);
             border-radius: 2px;
             text-align: center;
             margin-block: 4px;
         }
-
+        
         h1 {
             font-size: 1.9em;
         }
-
+        
         h2 {
             font-size: 1.5em;
         }
-
+        
         h3 {
             font-size: 1.25em;
         }
-
+        
         hr {
             border-style: none;
             border-top: 4px double var(--heading);
             margin-block: 4px;
             width: 100%;
         }
-
+        
         input,
         textarea {
             background-color: var(--inputs);
             border: 2px outset var(--grey-border);
+            border-radius: 4px;
             font-size: 1em;
         }
-
+        
         input:focus,
         input:hover,
         textarea:focus,
@@ -138,86 +139,83 @@
             background-color: var(--blue-hover);
             border-color: var(--blue-hover-border);
         }
-
+        
         select {
             background-color: var(--inputs);
-            color: #000000;
             border: 2px outset var(--grey-border);
-            border-radius: 0px;
+            border-radius: 4px;
             font-size: 1em;
             margin-block: 2px;
             padding-inline: 4px;
             min-height: 1.7em;
         }
-
+        
         select:focus,
         select:hover {
             background-color: var(--blue-hover);
-            color: #000000;
             border-color: var(--heading);
         }
-
+        
         select:focus > option,
         select:hover > option {
-            background-color: #ffffff;
-            color: #000000;
+            background-color: #000000;
         }
-
+        
         summary {
             font-weight: 600;
             cursor: pointer;
         }
-
+        
         table {
             border-collapse: collapse;
             margin-block: 4px;
             width: 100%;
         }
-
+        
         td, th {
             border: 2px outset #004985;
             padding-inline: 2px;
         }
-
+        
         tr {
             background-color: var(--blue-hover);
         }
-
+        
         tr:nth-of-type(even) {
             background-color: #ffbbbb;
         }
-
+        
         tr:focus,
         tr:hover {
             background-color: #d3d3d3;
             border: 2px dashed #004985;
         }
-
+        
         /* Elements by ID */
         #lang {
             margin-top: 4px;
         }
-
+        
         #menu,
         #game,
-        #editor,
+        #examples,
         #settings,
         #about {
             display: flex;
             flex-direction: column;
         }
-
+        
         #game,
-        #editor,
+        #examples,
         #settings,
         #about {
             display: none;
         }
-
+        
         #author {
-            background-color: #ffbbbb;
-            color: #000000;
+            background-color: #440000;
             border: 2px outset #c20000;
+            border-radius: 4px;
             text-align: center;
             font-size: 1em;
             margin-block: 2px;
@@ -226,56 +224,94 @@
             width: 100%;
             opacity: 0.9;
         }
-
+        
         #author:focus,
         #author:hover {
             background-color: var(--blue-hover);
             border-color: var(--blue-hover-border);
         }
-
+        
         #load-div {
             display: flex;
         }
-
-        #load-level {
+        
+        #load-text {
             position: absolute;
             opacity: 0;
             max-width: 100%;
         }
-
-        #save-level-button {
+        
+        #save-text-button {
             cursor: default;
         }
 
-        #container {
+        #exclude-div {
             display: flex;
             flex-direction: row;
-            justify-content: center;
-            margin-block: 2px;
+            flex-wrap: wrap;
+            align-items: center;
+            column-gap: 4px;
         }
 
+        #exclude-div > input {
+            flex-grow: 1;
+        }
+        
         #grid {
             display: flex;
-            flex-direction: column;
-            row-gap: 1px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            column-gap: 1px;
             background-color: transparent;
             overflow: auto;
             margin-block: 4px;
             padding: 4px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 8px #000000;
+            border: 4px double var(--heading);
+            border-radius: 4px;
         }
-
+        
+        #text {
+            width: 100%;
+            min-height: 30vh;
+            resize: vertical;
+        }
+        
         /* Classes */
-        .settings-list {
-            display: flex;
-            flex-direction: column;
-            margin-block: 4px;
-            row-gap: 2px;
-        }
-
         .editor-only {
             display: none;
+        }
+        
+        .letter {
+            outline-style: none;
+            background-color: transparent;
+            border-style: none;
+            border-bottom: 2px solid var(--grey-border);
+            margin-bottom: 2px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5em;
+            font-weight: 600;
+            text-align: center;
+            width: 1em;
+        }
+
+        .letter::selection {
+            background-color: transparent;
+        }
+        
+        .letter:focus,
+        .letter:hover {
+            background-color: #902020;
+            border-bottom-color: var(--heading);
+        }
+        
+        .letter-focused {
+            background-color: #803030;
+        }
+
+        .letter-excluded {
+            background-color: transparent;
+            border-bottom-style: none;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -284,15 +320,15 @@
     
     <!-- Main menu div -->
     <div id='menu' tabindex='1'>
-        <h1 id='title'>Game</h1>
+        <h1 id='title'>Knor</h1>
 
         <select id='lang' tabindex='0'></select>
 
         <button id='start-button' tabindex='1' onclick='switchScene("menu", "game")'>
             Play
         </button>
-        <button id='editor-button' tabindex='1' onclick='switchScene("menu", "editor")'>
-            Level editor
+        <button id='examples-button' tabindex='1' onclick='switchScene("menu", "examples")'>
+            Examples
         </button>
         <button id='settings-button' tabindex='1' onclick='switchScene("menu", "settings")'>
             Settings
@@ -312,15 +348,49 @@
         <button id='game-back' onclick='switchScene("game", "menu")'>
             Back
         </button>
+
+        <div id='load-div' class='pseudo-button'>
+            <label id='load-label' for='load-text'>Load text</label>
+            <input id='load-text' type='file' accept='.json'>
+        </div>
+
+        <details>
+            <summary id='answer'>Text to decipher</summary>
+
+            <textarea id='text' autocomplete='off'></textarea>
+
+            <a id='save-text-button' class='pseudo-button' href=''>
+                Save text
+            </a>
+        </details>
+
+        <div id='exclude-div'>
+            <label for='exclude' id='exclude-label'>Always displayed symbols</label>
+            <input type='text' id='exclude'>
+        </div>
+
+        <button id='play-button' onclick='fillLetters()'>Start</button>
+
+        <div id='grid'></div>
+
+        <button id='reveal-letter' onclick='revealLetter()'>Reveal a random letter</button>
     </div>
 
-    <!-- Editor div -->
-    <div id='editor' tabindex='0'>
-        <h2 id='editor-title'>Level editor</h2>
+    <!-- Examples div -->
+    <div id='examples' tabindex='0'>
+        <h2 id='examples-title'>Examples</h2>
 
-        <button id='editor-back' onclick='switchScene("editor", "menu")'>
+        <button id='examples-back' onclick='switchScene("examples", "menu")'>
             Back
         </button>
+
+        <button id='example01' onclick='loadExample("example01-text")'>
+            Who is Knorozov?
+        </button>
+
+        <p id='example01-text' style='display: none;'>
+            Yuri Valentinovich Knorozov (1922–1999) was a Soviet and Russian linguist, epigraphist, and ethnologist. He is best known for the key role he played in the decipherment of the Maya script, the writing system of the Maya civilization of pre-Columbian Mesoamerica.
+        </p>
     </div>
 
     <!-- Settings div -->
@@ -359,7 +429,7 @@
         /** @type {HTMLDivElement} */
         let game = document.getElementById('game');
         /** @type {HTMLDivElement} */
-        let editor = document.getElementById('editor');
+        let examples = document.getElementById('examples');
         /** @type {HTMLDivElement} */
         let settings = document.getElementById('settings');
         /** @type {HTMLDivElement} */
@@ -370,11 +440,35 @@
         /** @type {HTMLButtonElement} */
         let defaultSettings = document.getElementById('default-settings');
 
+        /** @type {HTMLTextAreaElement} */
+        let text = document.getElementById('text');
+        /** @type {HTMLInputElement} */
+        let loadTextButton = document.getElementById('load-text');
+        /** @type {HTMLAnchorElement} */
+        let saveTextButton = document.getElementById('save-text-button');
+        /** @type {HTMLInputElement} */
+        let exclude = document.getElementById('exclude');
+        /** @type {HTMLDivElement} */
+        let grid = document.getElementById('grid');
+        /** @type {HTMLButtonElement} */
+        let revealButton = document.getElementById('reveal-letter');
+
+        exclude.value = '\'"., :;/\\*-+~`!@#$%^&*()[]{}=<>|_‘’«»„““”–—';
+        revealButton.disabled = true;
+
         // Objects
+        function Letter() {
+            /** @type {string} */
+            this.answer = '';
+            /** @type {HTMLInputElement[]} */
+            this.elements = [];
+        }
 
         // Variables
         /** @type {AudioContext} */
         let audio = new (window.AudioContext || window.webkitAudioContext)();
+        /** @type {Object.<string, Letter>} */
+        let letters = {};
 
         // Resetting some elements & loading settings
         loadSettings();
@@ -394,9 +488,6 @@
         game.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') switchScene('game', 'menu');
         });
-        editor.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') switchScene('editor', 'menu');
-        });
         settings.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') switchScene('settings', 'menu');
         });
@@ -405,10 +496,155 @@
         });
 
         // Other events
+        loadTextButton.addEventListener('change', async function (event) {
+            await loadTextButton.files[0].text().then(data => {
+                try {
+                    /** @type {{ text: string, exclude: string }} */
+                    let loadedText = JSON.parse(data);
+
+                    text.value = loadedText.text;
+                    exclude.value = loadedText.exclude;
+                    fillLetters();
+                } catch (error) {
+                    alert(`Error while loading the text: ${error}`);
+                } finally {
+                    loadTextButton.value = '';
+                }
+            });
+        });
+        saveTextButton.addEventListener('click', function (event) {
+            if (!text.value) return;
+
+            let data = encodeURIComponent(
+                JSON.stringify({
+                    text: text.value,
+                    exclude: exclude.value
+                }, null, 2)
+            );
+            saveTextButton.download = 'Text.json';
+            saveTextButton.href = `data:text/plain;charset=utf-8,${data}`;
+        });
 
         // Functions
         function loadSettings() {
             // Empty so far
+        }
+
+        function fillLetters() {
+            while (grid.hasChildNodes()) grid.lastChild.remove();
+            letters = {};
+
+            if (text.value === '') return;
+
+            for (let l of text.value.toUpperCase()) {
+                // Add a new input element
+                /** @type {HTMLInputElement} */
+                let input = grid.appendChild(
+                    document.createElement('input')
+                );
+                input.className = 'letter';
+                input.type = 'text';
+                input.maxLength = 1;
+
+                // Selecting cells with arrow buttons
+                input.addEventListener('keydown', function (event) {
+                    switch (event.key) {
+                        case 'ArrowRight':
+                            event.preventDefault();
+                            /** @type {HTMLInputElement} */
+                            let next = this.nextElementSibling;
+                            if (!next) return;
+                            next.focus();
+                            playSound('sine', [0, 250, 0], 0.08);
+                            break;
+                        case 'ArrowLeft':
+                            event.preventDefault();
+                            /** @type {HTMLInputElement} */
+                            let previous = this.previousElementSibling;
+                            if (!previous) return;
+                            previous.focus();
+                            playSound('sine', [0, 300], 0.08);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+                // Check if this letter should be excluded
+                if (exclude.value.includes(l)) {
+                    input.classList.add('letter-excluded');
+                    input.readOnly = true;
+                    input.value = l;
+                    continue; // Exit early, as this symbol is read only
+                }
+
+                // Add a new letter object if it doesn't exist
+                if (!letters[l]) {
+                    letters[l] = new Letter();
+                    letters[l].answer = l;
+                }
+
+                input.addEventListener('input', function (event) {
+                    this.value = this.value.toUpperCase();
+                    letters[l].elements.forEach(e => e.value = this.value);
+                    this.select();
+                    playSound('sine', [300, 200, 300, 40], 0.08);
+                });
+                input.addEventListener('click', function (event) {
+                    this.focus();
+                });
+                input.addEventListener('focus', function (event) {
+                    if (!letters[l]) return;
+                    letters[l].elements.forEach(e => e.classList.add('letter-focused'));
+                    if (!this.readOnly) this.select();
+                });
+                input.addEventListener('blur', function (event) {
+                    if (!letters[l]) return;
+                    letters[l].elements.forEach(e => e.classList.remove('letter-focused'));
+                });
+
+                letters[l].elements.push(input);
+            }
+
+            revealButton.disabled = false;
+
+            revealLetter();
+            revealLetter();
+            revealLetter();
+        }
+
+        function revealLetter() {
+            if (!letters) return;
+            if (Object.keys(letters).length < 6) {
+                revealButton.disabled = true;
+                return;
+            };
+
+            /** @type {number} */
+            let index = Math.floor(Math.random() * Object.keys(letters).length);
+            /** @type {string} */
+            let key = Object.keys(letters)[index];
+
+            letters[key].elements.forEach(e => {
+                e.value = letters[key].answer;
+                e.classList.add('letter-excluded');
+                e.readOnly = true;
+            });
+            delete letters[key];
+        }
+
+        /**
+         * @param {string} elementId
+        */
+        function loadExample(elementId) {
+            /** @type {HTMLParagraphElement} */
+            let paragraph = document.getElementById(elementId);
+            if (!paragraph) return;
+
+            exclude.value = '\'"., :;/\\*-+~`!@#$%^&*()[]{}=<>|_‘’«»„““”–—';
+            text.value = paragraph.textContent.trim();
+            switchScene('examples', 'game');
+            fillLetters();
         }
 
         function switchScene(from, to) {
@@ -509,9 +745,9 @@
                         ]
                     },
                     {
-                        "id": "editor-button",
+                        "id": "examples-button",
                         "childNodesTexts": [
-                            "Editor"
+                            "Examples"
                         ]
                     },
                     {
@@ -541,15 +777,63 @@
                         ]
                     },
                     {
-                        "id": "editor-title",
+                        "id": "load-label",
                         "childNodesTexts": [
-                            "Editor"
+                            "Load text"
                         ]
                     },
                     {
-                        "id": "editor-back",
+                        "id": "answer",
+                        "childNodesTexts": [
+                            "Text to decipher"
+                        ]
+                    },
+                    {
+                        "id": "save-text-button",
+                        "childNodesTexts": [
+                            "Save text"
+                        ]
+                    },
+                    {
+                        "id": "exclude-label",
+                        "childNodesTexts": [
+                            "Always displayed symbols"
+                        ]
+                    },
+                    {
+                        "id": "play-button",
+                        "childNodesTexts": [
+                            "Start"
+                        ]
+                    },
+                    {
+                        "id": "reveal-letter",
+                        "childNodesTexts": [
+                            "Reveal a random letter"
+                        ]
+                    },
+                    {
+                        "id": "examples-title",
+                        "childNodesTexts": [
+                            "Examples"
+                        ]
+                    },
+                    {
+                        "id": "examples-back",
                         "childNodesTexts": [
                             "Back"
+                        ]
+                    },
+                    {
+                        "id": "example01",
+                        "childNodesTexts": [
+                            "Who is Knorozov?"
+                        ]
+                    },
+                    {
+                        "id": "example01-text",
+                        "childNodesTexts": [
+                            "Yuri Valentinovich Knorozov (1922–1999) was a Soviet and Russian linguist, epigraphist, and ethnologist. He is best known for the key role he played in the decipherment of the Maya script, the writing system of the Maya civilization of pre-Columbian Mesoamerica."
                         ]
                     },
                     {
@@ -613,9 +897,9 @@
                         ]
                     },
                     {
-                        "id": "editor-button",
+                        "id": "examples-button",
                         "childNodesTexts": [
-                            "Редактор"
+                            "Примеры"
                         ]
                     },
                     {
@@ -645,15 +929,63 @@
                         ]
                     },
                     {
-                        "id": "editor-title",
+                        "id": "load-label",
                         "childNodesTexts": [
-                            "Редактор"
+                            "Загрузить текст"
                         ]
                     },
                     {
-                        "id": "editor-back",
+                        "id": "answer",
+                        "childNodesTexts": [
+                            "Текст для расшифровки"
+                        ]
+                    },
+                    {
+                        "id": "save-text-button",
+                        "childNodesTexts": [
+                            "Сохранить текст"
+                        ]
+                    },
+                    {
+                        "id": "exclude-label",
+                        "childNodesTexts": [
+                            "Всегда видимые символы"
+                        ]
+                    },
+                    {
+                        "id": "play-button",
+                        "childNodesTexts": [
+                            "Начать"
+                        ]
+                    },
+                    {
+                        "id": "reveal-letter",
+                        "childNodesTexts": [
+                            "Раскрыть случайную букву"
+                        ]
+                    },
+                    {
+                        "id": "examples-title",
+                        "childNodesTexts": [
+                            "Примеры"
+                        ]
+                    },
+                    {
+                        "id": "examples-back",
                         "childNodesTexts": [
                             "Назад"
+                        ]
+                    },
+                    {
+                        "id": "example01",
+                        "childNodesTexts": [
+                            "Кто такой Кнорозов?"
+                        ]
+                    },
+                    {
+                        "id": "example01-text",
+                        "childNodesTexts": [
+                            "Юрий Валентинович Кнорозов (1922–1999) — советский и российский лингвист, эпиграфист и этнолог. Больше всего он известен своей ключевой ролью в дешифровке письменности майя, цивилизации доколумбовой Мезоамерики."
                         ]
                     },
                     {
