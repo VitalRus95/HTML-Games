@@ -300,7 +300,7 @@
         
         .letter:focus,
         .letter:hover {
-            background-color: #902020;
+            background-color: #306090;
             border-bottom-color: var(--heading);
         }
         
@@ -453,8 +453,9 @@
         /** @type {HTMLButtonElement} */
         let revealButton = document.getElementById('reveal-letter');
 
-        exclude.value = '\'"., :;/\\*-+~`!@#$%^&*()[]{}=<>|_‘’«»„““”–—';
-        revealButton.disabled = true;
+        // Constants
+        /** @type {string} */
+        const exceptions = '\'".,:;/\\*-+~`!@#$%^&*()[]{}=<>|_‘’«»„““”–—';
 
         // Objects
         function Letter() {
@@ -471,6 +472,8 @@
         let letters = {};
 
         // Resetting some elements & loading settings
+        revealButton.disabled = true;
+        exclude.value = exceptions;
         loadSettings();
 
         // Settings' events
@@ -571,7 +574,7 @@
                 });
 
                 // Check if this letter should be excluded
-                if (exclude.value.includes(l)) {
+                if (exclude.value.includes(l) || l.match(/[\s\d]/)) {
                     input.classList.add('letter-excluded');
                     input.readOnly = true;
                     input.value = l;
@@ -641,7 +644,7 @@
             let paragraph = document.getElementById(elementId);
             if (!paragraph) return;
 
-            exclude.value = '\'"., :;/\\*-+~`!@#$%^&*()[]{}=<>|_‘’«»„““”–—';
+            exclude.value = exceptions;
             text.value = paragraph.textContent.trim();
             switchScene('examples', 'game');
             fillLetters();
