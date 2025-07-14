@@ -28,8 +28,8 @@
         /* Elements by tag */
         html {
             align-content: center;
-            background-color: #1d3d3d;
-            background-image: linear-gradient(45deg, #000f0f, transparent, #2a2f00);
+            background-color: #253f68;
+            background-image: linear-gradient(45deg, #000f0f, transparent, #5b6500);
             background-attachment: fixed;
             height: 100%;
         }
@@ -277,15 +277,18 @@
         }
         
         /* Classes */
-        .editor-only {
-            display: none;
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            margin-block: 4px;
+            row-gap: 2px;
         }
         
         .letter {
             outline-style: none;
             background-color: transparent;
-            border-style: none;
-            border-bottom: 2px solid var(--grey-border);
+            border: 2px ridge transparent;
+            border-bottom-color: var(--grey-border);
             margin-bottom: 2px;
             font-family: 'Courier New', Courier, monospace;
             font-size: 1.5em;
@@ -300,11 +303,12 @@
         
         .letter:focus,
         .letter:hover {
-            background-color: #306090;
+            background-color: #202020;
             border-bottom-color: var(--heading);
         }
         
         .letter-focused {
+            border-color: var(--heading);
             background-color: #803030;
         }
 
@@ -316,7 +320,7 @@
     </style>
 </head>
 <body>
-    <!-- <a href='' id='exportLang' download='TranslationTemplate.json' onclick='exportTranslationTemplate()'>Export texts for translation</a> -->
+    <a href='' id='exportLang' download='TranslationTemplate.json' onclick='exportTranslationTemplate()'>Export texts for translation</a>
     
     <!-- Main menu div -->
     <div id='menu' tabindex='1'>
@@ -372,8 +376,6 @@
         <button id='play-button' onclick='fillLetters()'>Start</button>
 
         <div id='grid'></div>
-
-        <button id='reveal-letter' onclick='revealLetter()'>Reveal a random letter</button>
     </div>
 
     <!-- Examples div -->
@@ -402,6 +404,11 @@
         </button>
 
         <ul class='settings-list'>
+            <li><div class='setting-div'>
+                <label for='set-reveal-percent' id='reveal-percent-label'>% of revealed letters</label>
+                <input type='number' id='set-reveal-percent' min='0' max='50' step='5' value='15'>
+            </div></li>
+
             <li><div class='setting-div'>
                 <label for='set-game-volume' id='game-volume-label'>Sound volume</label>
                 <input type='number' id='set-game-volume' min='0' max='1' step='0.1' value='0.5'>
@@ -436,6 +443,8 @@
         let about = document.getElementById('about');
 
         /** @type {HTMLInputElement} */
+        let revealPercent = document.getElementById('set-reveal-percent');
+        /** @type {HTMLInputElement} */
         let gameVolume = document.getElementById('set-game-volume');
         /** @type {HTMLButtonElement} */
         let defaultSettings = document.getElementById('default-settings');
@@ -450,12 +459,10 @@
         let exclude = document.getElementById('exclude');
         /** @type {HTMLDivElement} */
         let grid = document.getElementById('grid');
-        /** @type {HTMLButtonElement} */
-        let revealButton = document.getElementById('reveal-letter');
 
         // Constants
         /** @type {string} */
-        const exceptions = '\'".,:;/\\*-+~`!@#$%^&*()[]{}=<>|_‘’«»„““”–—';
+        const exceptions = '\'".,…:;/\\*-+~`?!@#$%^&*()[]{}=<>|_‘’«»„““”–—';
 
         // Objects
         function Letter() {
@@ -472,11 +479,18 @@
         let letters = {};
 
         // Resetting some elements & loading settings
-        revealButton.disabled = true;
         exclude.value = exceptions;
         loadSettings();
 
         // Settings' events
+        revealPercent.addEventListener('change', function (event) {
+            revealPercent.value = clamp(
+                +revealPercent.min,
+                +revealPercent.value,
+                +revealPercent.max
+            );
+            localStorage.setItem('revealPercent', revealPercent.value);
+        });
         gameVolume.addEventListener('change', function (event) {
             gameVolume.value = clamp(0, +gameVolume.value, 1);
             localStorage.setItem('gameVolume', gameVolume.value);
@@ -490,6 +504,9 @@
         // Exiting on pressing Escape
         game.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') switchScene('game', 'menu');
+        });
+        examples.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') switchScene('examples', 'menu');
         });
         settings.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') switchScene('settings', 'menu');
@@ -530,7 +547,7 @@
 
         // Functions
         function loadSettings() {
-            // Empty so far
+            revealPercent.value = localStorage.getItem('revealPercent') || '15';
         }
 
         function fillLetters() {
@@ -575,6 +592,7 @@
 
                 // Check if this letter should be excluded
                 if (exclude.value.includes(l) || l.match(/[\s\d]/)) {
+                    if (l.match(/\n/)) input.style.width = '100%';
                     input.classList.add('letter-excluded');
                     input.readOnly = true;
                     input.value = l;
@@ -609,19 +627,20 @@
                 letters[l].elements.push(input);
             }
 
-            revealButton.disabled = false;
+            if (+revealPercent.value !== 0) {
+                /** @type {number} */
+                let max = Math.round(
+                    Object.keys(letters).length * +revealPercent.value / 100
+                );
 
-            revealLetter();
-            revealLetter();
-            revealLetter();
+                for (let i = 0; i < max; i++) {
+                    revealLetter();
+                }
+            }
         }
 
         function revealLetter() {
             if (!letters) return;
-            if (Object.keys(letters).length < 6) {
-                revealButton.disabled = true;
-                return;
-            };
 
             /** @type {number} */
             let index = Math.floor(Math.random() * Object.keys(letters).length);
@@ -810,12 +829,6 @@
                         ]
                     },
                     {
-                        "id": "reveal-letter",
-                        "childNodesTexts": [
-                            "Reveal a random letter"
-                        ]
-                    },
-                    {
                         "id": "examples-title",
                         "childNodesTexts": [
                             "Examples"
@@ -849,6 +862,12 @@
                         "id": "settings-back",
                         "childNodesTexts": [
                             "Back"
+                        ]
+                    },
+                    {
+                        "id": "reveal-percent-label",
+                        "childNodesTexts": [
+                            "% of revealed letters"
                         ]
                     },
                     {
@@ -962,12 +981,6 @@
                         ]
                     },
                     {
-                        "id": "reveal-letter",
-                        "childNodesTexts": [
-                            "Раскрыть случайную букву"
-                        ]
-                    },
-                    {
                         "id": "examples-title",
                         "childNodesTexts": [
                             "Примеры"
@@ -1001,6 +1014,12 @@
                         "id": "settings-back",
                         "childNodesTexts": [
                             "Назад"
+                        ]
+                    },
+                    {
+                        "id": "reveal-percent-label",
+                        "childNodesTexts": [
+                            "% открытых букв"
                         ]
                     },
                     {
