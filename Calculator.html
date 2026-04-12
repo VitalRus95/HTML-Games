@@ -1,0 +1,1936 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Calculator</title>
+        <style>
+            /* Animations */
+            @keyframes scene-show {
+                from {
+                    opacity: 0;
+                    transform: translateX(-10%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0%);
+                }
+            }
+
+            @keyframes details-show {
+                from {
+                    background-color: var(--colour-border);
+                }
+                to {
+                    background-color: transparent;
+                }
+            }
+
+            /* All elements */
+            :root {
+                --colour-bgr-1: #ff9696;
+                --colour-bgr-2: #fff5d2;
+                --colour-bgr-3: #d7d2ff;
+                --colour-text: #000000;
+                --colour-button: #ebebff;
+                --colour-border: #00557d;
+                --colour-input: #ffffd7;
+                --colour-tooltip: #ffb4b4;
+                --colour-hovered-bgr: #191919;
+                --colour-hovered-fgr: #ebebeb;
+                --colour-hovered-border: #b4b4b4;
+                --colour-disabled-bgr: #afafaf;
+                --colour-disabled-fgr: #1e1e1e;
+                --cell-size: calc(42px + 1.2vmax);
+                --cell-font-size: calc(var(--cell-size) * 0.6);
+                --even-row-margin-left: calc(var(--cell-size) * 0.5 + 1px);
+                --even-row-margin-block: calc(var(--cell-size) * -0.12);
+            }
+
+            * {
+                color: var(--colour-text);
+                border-radius: 4px;
+                box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Roboto,
+                    Oxygen,
+                    Ubuntu,
+                    Cantarell,
+                    "Open Sans",
+                    "Helvetica Neue",
+                    sans-serif;
+                transition: background-color 0.4s ease;
+                -moz-transition: background-color 0.4s ease;
+                -webkit-transition: background-color 0.4s ease;
+            }
+
+            /* Elements by tag */
+            html {
+                align-content: center;
+                height: 100%;
+            }
+
+            body {
+                display: flex;
+                background-color: var(--colour-bgr-2);
+                background-image: linear-gradient(
+                    60deg,
+                    var(--colour-bgr-1),
+                    transparent,
+                    var(--colour-bgr-3)
+                );
+                background-attachment: fixed;
+                flex-direction: column;
+                margin: auto;
+                font-size: 14pt;
+                min-width: 40%;
+                max-width: 90%;
+                transition: none;
+                -moz-transition: none;
+                -webkit-transition: none;
+            }
+
+            a {
+                background-color: transparent;
+                color: var(--colour-text);
+            }
+
+            blockquote {
+                background-color: var(--colour-input);
+                background-image: linear-gradient(60deg, var(--colour-tooltip), transparent);
+                border: 2px outset var(--colour-border);
+                border-left: 4px inset var(--colour-border);
+                border-radius: 0px 4px 4px 0px;
+                margin-block: 4px;
+                margin-inline: 0px;
+                padding: 2px 4px;
+            }
+
+            br {
+                margin-block: 8px;
+            }
+
+            button,
+            .pseudo-button {
+                display: flex;
+                flex-grow: 1;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                background-color: var(--colour-button);
+                color: var(--colour-text);
+                border: 2px outset var(--colour-border);
+                font-size: 1em;
+                font-weight: 600;
+                margin-block: 2px;
+                padding: 2px;
+                min-height: 1.7em;
+                cursor: default;
+            }
+
+            button:disabled,
+            .pseudo-button:disabled,
+            input:disabled {
+                background-color: var(--colour-disabled-bgr);
+                color: var(--colour-disabled-fgr);
+                cursor: not-allowed;
+            }
+
+            caption {
+                font-size: 1.1em;
+                font-style: italic;
+                font-weight: 600;
+            }
+
+            code,
+            pre {
+                font-family: monospace;
+                margin-block: 1px;
+                padding-left: 2px;
+            }
+
+            details {
+                background-color: transparent;
+                color: var(--colour-text);
+                border: 2px outset var(--colour-border);
+                margin-block: 2px;
+                padding: 2px 4px;
+                max-height: 55vh;
+                overflow: auto;
+            }
+
+            details[open] {
+                animation: details-show 0.6s ease-in;
+            }
+
+            details[open] > summary {
+                border: 2px outset var(--colour-border);
+                background-color: var(--colour-bgr-2);
+                background-image: linear-gradient(
+                    60deg,
+                    var(--colour-bgr-1),
+                    transparent,
+                    var(--colour-bgr-3)
+                );
+                color: var(--colour-text);
+                opacity: 0.95;
+                margin-bottom: 4px;
+                padding: 2px;
+                position: sticky;
+                top: 2px;
+                z-index: 9;
+            }
+
+            details[open] > summary:focus,
+            details[open] > summary:hover,
+            details[open]:focus > summary,
+            details[open]:hover > summary {
+                background-color: var(--colour-button);
+                background-image: linear-gradient(
+                    60deg,
+                    var(--colour-input),
+                    transparent,
+                    var(--colour-tooltip)
+                );
+                transition: background-color 0.7s ease;
+                -moz-transition: background-color 0.7s ease;
+                -webkit-transition: background-color 0.7s ease;
+            }
+
+            details[open]:focus-within > summary {
+                background-color: var(--colour-button);
+                background-image: linear-gradient(
+                    60deg,
+                    var(--colour-input),
+                    transparent,
+                    var(--colour-tooltip)
+                );
+                transition: background-color 0.7s ease;
+                -moz-transition: background-color 0.7s ease;
+                -webkit-transition: background-color 0.7s ease;
+            }
+
+            details[open] > summary::marker {
+                content: "< ";
+            }
+
+            h1,
+            h2,
+            h3 {
+                text-align: center;
+                margin-block: 4px;
+            }
+
+            h1 {
+                border-bottom: 3px inset var(--colour-border);
+                border-radius: 0px;
+                font-size: 1.9em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.25em;
+            }
+
+            hr {
+                border-style: none;
+                border-top: 4px double var(--colour-border);
+                margin-block: 4px;
+                width: 100%;
+            }
+
+            input,
+            textarea {
+                background-color: var(--colour-input);
+                border: 2px outset var(--colour-border);
+                font-size: 1em;
+                margin-block: 2px;
+                min-height: 1.7em;
+            }
+
+            input[type="text"] {
+                display: flex;
+                flex-grow: 1;
+            }
+
+            kbd {
+                font-family: monospace;
+                font-size: 0.99em;
+                border: 2px outset var(--colour-border);
+                box-shadow: 1px 1px 1px var(--colour-text);
+                padding-inline: 2px;
+                margin-inline: 2px;
+                cursor: default;
+            }
+
+            li {
+                margin-block: 2px;
+            }
+
+            ol,
+            ul {
+                margin-block: 4px;
+            }
+
+            p {
+                margin-block: 8px;
+                line-height: 1.5;
+                text-indent: 0.6em;
+            }
+
+            samp {
+                font-size: 0.98em;
+                border: 2px outset var(--colour-border);
+                border-radius: 0px;
+                padding-inline: 2px;
+                margin-inline: 1px;
+                cursor: default;
+            }
+
+            select {
+                background-color: var(--colour-input);
+                color: var(--colour-text);
+                border: 2px outset var(--colour-border);
+                font-size: 1em;
+                margin-block: 2px;
+                padding-inline: 4px;
+                min-height: 1.7em;
+            }
+
+            select:focus > option,
+            select:hover > option {
+                background-color: var(--colour-hovered-bgr);
+                color: var(--colour-hovered-fgr);
+            }
+
+            strong {
+                box-shadow: 0px 0px 3px 0px var(--colour-text);
+                margin-inline: 2px;
+                padding-inline: 4px;
+                font-weight: 400;
+            }
+
+            summary {
+                border-radius: 4px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            summary::marker {
+                font-family: monospace;
+                content: "> ";
+            }
+
+            table {
+                border-collapse: separate;
+                table-layout: fixed;
+                margin-block: 4px;
+                width: 100%;
+            }
+
+            thead {
+                position: sticky;
+                top: 0px;
+                z-index: 8;
+            }
+
+            tfoot {
+                position: sticky;
+                bottom: 0px;
+                z-index: 8;
+            }
+
+            tfoot > tr > td,
+            tfoot > tr > th {
+                background-color: var(--colour-input);
+                font-weight: 600;
+            }
+
+            td,
+            th {
+                border: 2px outset var(--colour-border);
+                width: 100%;
+            }
+
+            td {
+                padding-left: 4px;
+            }
+
+            th {
+                background-color: var(--colour-tooltip);
+                font-weight: 600;
+                text-align: center;
+            }
+
+            tr {
+                display: flex;
+                column-gap: 2px;
+                margin-block: 2px;
+                width: 100%;
+            }
+
+            tr:nth-of-type(even) > td {
+                background-color: var(--colour-button);
+            }
+
+            /* Hovering and focusing */
+            b:focus,
+            b:hover,
+            i:focus,
+            i:hover,
+            u:focus,
+            u:hover,
+            button:focus,
+            button:hover,
+            input:focus,
+            input:hover,
+            kbd:focus,
+            kbd:hover,
+            samp:focus,
+            samp:hover,
+            select:focus,
+            select:hover,
+            strong:focus,
+            strong:hover,
+            summary:focus,
+            summary:focus > *,
+            summary:hover,
+            summary:hover > *,
+            textarea:focus,
+            textarea:hover,
+            td:focus,
+            td:hover,
+            th:focus,
+            th:hover,
+            tr:nth-of-type(even) > td:focus,
+            tr:nth-of-type(even) > td:hover,
+            .pseudo-button:focus,
+            .pseudo-button:hover {
+                background-color: var(--colour-hovered-bgr);
+                color: var(--colour-hovered-fgr);
+                border-color: var(--colour-hovered-border);
+                transition: background-color 0.4s ease;
+                -moz-transition: background-color 0.4s ease;
+                -webkit-transition: background-color 0.4s ease;
+            }
+
+            /* Classes */
+            .button-container {
+                display: flex;
+                flex-wrap: wrap;
+                column-gap: 4px;
+            }
+
+            .codeblock {
+                display: flex;
+                flex-direction: column;
+                background-color: var(--colour-input);
+                border-left: 3px outset var(--colour-border);
+                border-radius: 0px 4px 4px 0px;
+                font-family: monospace;
+                margin-block: 4px;
+                padding-left: 2px;
+                overflow: auto;
+            }
+
+            .scene {
+                display: none;
+                flex-direction: column;
+                animation: scene-show 0.4s ease;
+            }
+
+            .setting-div {
+                display: flex;
+                column-gap: 4px;
+                align-items: center;
+            }
+
+            .settings-list {
+                display: flex;
+                flex-direction: column;
+                margin-block: 4px;
+                row-gap: 2px;
+            }
+
+            .tooltip-parent {
+                position: relative;
+            }
+
+            .tooltip-parent:focus > .tooltip,
+            .tooltip-parent:hover > .tooltip {
+                display: flex;
+            }
+
+            .tooltip {
+                display: none;
+                background-color: var(--colour-tooltip);
+                color: var(--colour-text);
+                border: 2px outset var(--colour-border);
+                padding: 0px 6px 0px 0px;
+                max-height: 60%;
+                max-width: 50%;
+                cursor: help;
+                font-style: italic;
+                font-weight: 400;
+                text-align: left;
+                opacity: 0.95;
+                position: fixed;
+                top: 8px;
+                left: 8px;
+                z-index: 10;
+                overflow: auto;
+            }
+
+            .tooltip::before {
+                content: "i";
+                background-color: var(--colour-text);
+                color: var(--colour-tooltip);
+                border-radius: 0px;
+                margin-right: 4px;
+                height: fit-content;
+                padding-inline: 0.5em;
+                font-style: italic;
+                font-weight: 600;
+            }
+
+            .row {
+                display: flex;
+                background-color: transparent;
+                column-gap: 2px;
+            }
+
+            .row:nth-child(even) {
+                margin-left: var(--even-row-margin-left);
+                margin-block: var(--even-row-margin-block);
+            }
+
+            .cell {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: var(--colour-bgr-2);
+                color: var(--colour-text);
+                border: 0.09em outset var(--colour-border);
+                border-radius: 50%;
+                font-family: monospace;
+                font-size: var(--cell-font-size);
+                font-weight: 600;
+                min-width: var(--cell-size);
+                min-height: var(--cell-size);
+                max-width: var(--cell-size);
+                max-height: var(--cell-size);
+                margin-block: 0px;
+                cursor: pointer;
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                transition:
+                    all 2s ease-in,
+                    border 0.3s ease;
+            }
+
+            .cell:focus,
+            .cell:hover {
+                border: 0.2em outset var(--colour-text);
+                background-color: var(--colour-button);
+                color: var(--colour-text);
+                transition:
+                    border 0.3s ease,
+                    border-color 0s ease;
+                outline-style: none;
+            }
+
+            .off {
+                border: calc(var(--cell-size) * 0.35) ridge var(--colour-border);
+                background-color: var(--colour-bgr-1);
+                cursor: not-allowed;
+                transition: all 1s ease;
+            }
+
+            .off:focus,
+            .off:hover {
+                border: calc(var(--cell-size) * 0.35) ridge var(--colour-border);
+                background-color: var(--colour-text);
+                transition:
+                    all 1s ease,
+                    background-color 0.3s ease;
+            }
+
+            .about-strong {
+                font-family: monospace;
+            }
+
+            /* Elements by ID */
+            #lang {
+                margin-bottom: 10px;
+            }
+
+            #menu {
+                display: flex;
+            }
+
+            #author {
+                background-color: var(--colour-tooltip);
+                color: var(--colour-text);
+                border: 2px outset var(--colour-border);
+                text-align: center;
+                text-indent: 0px;
+                font-size: 1em;
+                margin-block: 2px;
+                margin-top: 10px;
+                padding: 2px;
+                cursor: help;
+                width: 100%;
+            }
+
+            #author:focus,
+            #author:hover {
+                background-color: var(--colour-hovered-bgr);
+                color: var(--colour-hovered-fgr);
+                border-color: var(--colour-hovered-border);
+            }
+
+            #author:focus > a,
+            #author:hover > a {
+                color: var(--colour-hovered-fgr);
+            }
+
+            #container {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                margin-block: 2px;
+            }
+
+            #grid {
+                display: flex;
+                flex-direction: column;
+                row-gap: 2px;
+                background-color: transparent;
+                overflow: auto;
+                margin-block: 4px;
+                padding: 4px;
+            }
+
+            #status-bar {
+                position: sticky;
+                bottom: 0px;
+                background-color: var(--colour-tooltip);
+                border: 2px outset var(--colour-border);
+                opacity: 0.95;
+                cursor: help;
+                margin-block: 2px;
+            }
+
+            #status-bar:focus,
+            #status-bar:hover {
+                background-color: var(--colour-input);
+            }
+
+            #status-bar-text {
+                display: flex;
+                justify-content: center;
+                font-family: monospace;
+                font-size: 1.2em;
+                font-weight: 900;
+            }
+
+            #history-list > li {
+                font-family: monospace;
+                font-size: 1.1em;
+                font-weight: 900;
+            }
+
+            /* Media queries */
+            @media (min-width: 720px) {
+                body {
+                    max-width: 60%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- <button id="exportLang" onclick="exportTranslationTemplate()">
+            Export texts for translation
+        </button> -->
+
+        <!-- Main menu div -->
+        <div id="menu" class="scene" tabindex="1">
+            <h1 id="title" tabindex="1">Calculator</h1>
+
+            <select id="lang" tabindex="0"></select>
+
+            <button id="start-button" tabindex="1" onclick="play(true)"> Start </button>
+            <button id="continue-button" tabindex="1" onclick="play(false)" disabled>
+                Continue
+            </button>
+            <button id="settings-button" tabindex="1" onclick="switchScene('menu', 'settings')">
+                Settings
+            </button>
+            <button id="about-button" tabindex="1" onclick="switchScene('menu', 'about')">
+                About
+            </button>
+
+            <!-- Author -->
+            <p id="author" tabindex="0" class="tooltip-parent">
+                Made by
+                <a href="https://github.com/VitalRus95" target="_blank"
+                    >Vitaly Pavlovich Ulyanov (Vital)</a
+                >.
+                <span class="tooltip">Learn more on my GitHub page!</span>
+            </p>
+        </div>
+
+        <!-- Main div -->
+        <div id="main" class="scene" tabindex="0">
+            <button id="main-back" onclick="switchScene('main', 'menu')">Back</button>
+
+            <h2 id="win-text" style="display: none">You won!</h2>
+            <h2 id="lose-text" style="display: none">You lost!</h2>
+
+            <div id="container">
+                <div id="grid"></div>
+            </div>
+
+            <div id="status-bar" class="tooltip-parent">
+                <span id="status-bar-text">0/0 | 0 | + * /</span>
+                <span id="status-bar-tooltip" class="tooltip"
+                    >Score/Goal | Steps taken | Next operations</span
+                >
+            </div>
+
+            <button id="restart-button" style="display: none" onclick="play(true)">New game</button>
+
+            <details>
+                <summary id="history-summary">Actions history</summary>
+
+                <ul id="history-list"></ul>
+            </details>
+        </div>
+
+        <!-- Settings div -->
+        <div id="settings" class="scene" tabindex="0">
+            <h2 id="settings-title" tabindex="0">Settings</h2>
+
+            <button id="settings-back" onclick="switchScene('settings', 'menu')">Back</button>
+
+            <!-- Sound settings -->
+            <details>
+                <summary id="sound-settings">Sound</summary>
+
+                <ul class="settings-list">
+                    <!-- Volume -->
+                    <li>
+                        <label for="set-volume" id="volume-label">Sound volume</label>
+                        <input
+                            type="number"
+                            id="set-volume"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value="0.5"
+                        />
+                    </li>
+
+                    <!-- Default sounds (buttons, inputs, etc.) -->
+                    <li>
+                        <div class="setting-div">
+                            <label for="set-def-sounds" id="def-sounds-label"
+                                >Default sounds (buttons, inputs, etc.)</label
+                            >
+                            <input type="checkbox" id="set-def-sounds" checked />
+                        </div>
+                    </li>
+
+                    <!-- Game sounds -->
+                    <li>
+                        <div class="setting-div">
+                            <label for="set-game-sounds" id="game-sounds-label">Game sounds</label>
+                            <input type="checkbox" id="set-game-sounds" checked />
+                        </div>
+                    </li>
+                </ul>
+            </details>
+
+            <!-- Colour scheme settings -->
+            <details>
+                <summary id="colour-settings">Colours</summary>
+
+                <div class="button-container">
+                    <input type="file" id="colour-loader" accept=".json" style="display: none" />
+                    <button id="load-colours">Load colours</button>
+                    <a id="save-colours" href="" download="Colours.json" class="pseudo-button"
+                        >Save colours</a
+                    >
+                </div>
+
+                <ul id="colours" class="settings-list"></ul>
+
+                <div class="button-container">
+                    <button id="example-button">Button example</button>
+                    <button id="example-disabled-button" disabled>Disabled button example</button>
+                    <input
+                        type="text"
+                        id="example-input"
+                        placeholder="Input example"
+                        value="12345 ABCDE"
+                    />
+                </div>
+
+                <blockquote>
+                    <p id="example-buttons"
+                        >Text example with keyboard buttons (such as <kbd>Enter</kbd>) and
+                        programmes' interface buttons (for example, <samp>Apply</samp>).</p
+                    >
+                    <p id="example-formatting"
+                        >Examples of <strong>important</strong>, <b>boldface</b>, <i>italicised</i>,
+                        and <u>underlined</u> text.</p
+                    >
+                </blockquote>
+                <span class="codeblock">
+                    <pre id="example-code">Пример кода</pre>
+                    <pre>print("Hello, world!")</pre>
+                    <br />
+                    <pre>if (a > b) {</pre>
+                    <pre>    ...</pre>
+                    <pre>}</pre>
+                </span>
+            </details>
+
+            <button id="default-settings">Restore default settings</button>
+        </div>
+
+        <!-- About div -->
+        <div id="about" class="scene" tabindex="0">
+            <h2 id="about-title" tabindex="0">About</h2>
+
+            <button id="about-back" onclick="switchScene('about', 'menu')">Back</button>
+
+            <p id="about-text"
+                >You have a grid of digits and a status bar below it showing your current score,
+                goal, the number of steps taken, and the queue of math operations. Your task is to
+                reach the score goal using basic arithmetic operations (<strong class="about-strong"
+                    >+, -, *, /</strong
+                >). Clicking a digit on the grid will perform the leftmost operation in the queue
+                (for example, /), using your current score (say, 12) as the first variable and the
+                selected digit (e.g., 4) as the second one. In our example, the result then will be:
+                <strong class="about-strong">12 / 4 = 3</strong>. Good luck!</p
+            >
+        </div>
+
+        <script>
+            // Elements
+            /** @type {HTMLDivElement} */
+            let menu = document.getElementById("menu");
+            /** @type {HTMLDivElement} */
+            let main = document.getElementById("main");
+            /** @type {HTMLButtonElement}*/
+            let continueButton = document.getElementById("continue-button");
+            /** @type {HTMLHeadingElement} */
+            let winText = document.getElementById("win-text");
+            /** @type {HTMLHeadingElement} */
+            let loseText = document.getElementById("lose-text");
+            /** @type {HTMLDivElement} */
+            let grid = document.getElementById("grid");
+            /** @type {HTMLSpanElement} */
+            let statusBar = document.getElementById("status-bar-text");
+            /** @type {HTMLButtonElement} */
+            let restartButton = document.getElementById("restart-button");
+            /** @type {HTMLUListElement} */
+            let historyList = document.getElementById("history-list");
+            /** @type {HTMLDivElement} */
+            let settings = document.getElementById("settings");
+            /** @type {HTMLUListElement} */
+            let colours = document.getElementById("colours");
+            /** @type {HTMLDivElement} */
+            let about = document.getElementById("about");
+            /** @type {HTMLInputElement} */
+            let colourLoader = document.getElementById("colour-loader");
+            /** @type {HTMLButtonElement} */
+            let loadColours = document.getElementById("load-colours");
+            /** @type {HTMLAnchorElement} */
+            let saveColours = document.getElementById("save-colours");
+
+            /** @type {HTMLInputElement} */
+            let volumeInput = document.getElementById("set-volume");
+            /** @type {HTMLInputElement} */
+            let defaultSounds = document.getElementById("set-def-sounds");
+            /** @type {HTMLInputElement} */
+            let gameSounds = document.getElementById("set-game-sounds");
+            /** @type {HTMLButtonElement} */
+            let defaultSettings = document.getElementById("default-settings");
+
+            // Objects
+            const allColours = {
+                "--colour-bgr-1": "#ff9696",
+                "--colour-bgr-2": "#fff5d2",
+                "--colour-bgr-3": "#d7d2ff",
+                "--colour-text": "#000000",
+                "--colour-button": "#ebebff",
+                "--colour-border": "#00557d",
+                "--colour-input": "#ffffd7",
+                "--colour-tooltip": "#ffb4b4",
+                "--colour-hovered-bgr": "#191919",
+                "--colour-hovered-fgr": "#ebebeb",
+                "--colour-hovered-border": "#b4b4b4",
+                "--colour-disabled-bgr": "#afafaf",
+                "--colour-disabled-fgr": "#1e1e1e",
+            };
+
+            // Variables
+            /** @type {AudioContext} */
+            let audio = new (window.AudioContext || window.webkitAudioContext)();
+            /** @type {number} */
+            let gridSize = 5;
+            /** @type {number} */
+            let goal = 0;
+            /** @type {number} */
+            let score = 0;
+            /** @type {number} */
+            let steps = 0;
+            /** @type {string[]} */
+            let operations = [];
+            /** @type {HTMLButtonElement[]} */
+            let cells = [];
+            /** @type {boolean} */
+            let isGameInProcess = true;
+
+            // Settings' events
+            volumeInput.addEventListener("change", function (event) {
+                volumeInput.value = clamp(0, +volumeInput.value, 1);
+                localStorage.setItem("volume", volumeInput.value);
+            });
+
+            defaultSounds.addEventListener("change", function (event) {
+                localStorage.setItem("default-sounds", this.checked);
+            });
+
+            gameSounds.addEventListener("change", function (event) {
+                localStorage.setItem("game-sounds", this.checked);
+            });
+
+            defaultSettings.addEventListener("click", function (event) {
+                // Volume
+                volumeInput.value = "0.5";
+                localStorage.setItem("volume", volumeInput.value);
+
+                // Default sounds
+                defaultSounds.checked = true;
+                localStorage.setItem("default-sounds", "true");
+
+                // Game sounds
+                gameSounds.checked = true;
+                localStorage.setItem("game-sounds", "true");
+
+                // Colours
+                for (const c in allColours) {
+                    document.body.style.setProperty(c, allColours[c]);
+                    document.getElementById(c).value = allColours[c];
+                    localStorage.setItem(c, allColours[c]);
+                }
+            });
+
+            // Colour settings
+            Object.keys(allColours).forEach((c) => {
+                document.body.style.setProperty(
+                    c,
+                    localStorage.getItem(c) ?? getComputedStyle(document.body).getPropertyValue(c),
+                );
+
+                /** @type {HTMLLIElement} */
+                let item = colours.appendChild(document.createElement("li"));
+                /** @type {HTMLLabelElement} */
+                let label = item.appendChild(document.createElement("label"));
+                /** @type {HTMLInputElement} */
+                let input = item.appendChild(document.createElement("input"));
+
+                label.id = `${c}-label`;
+                label.htmlFor = c;
+                label.textContent = c;
+                label.style.marginRight = "4px";
+
+                input.id = c;
+                input.type = "color";
+                input.value = document.body.style.getPropertyValue(c);
+                input.addEventListener("input", function (event) {
+                    document.body.style.setProperty(c, this.value);
+                    localStorage.setItem(c, this.value);
+                });
+
+                if (c === "--colour-tooltip") {
+                    item.classList.add("tooltip-parent");
+                    /** @type {HTMLSpanElement} */
+                    let tooltip = item.appendChild(document.createElement("span"));
+
+                    tooltip.id = "example-tooltip";
+                    tooltip.classList.add("tooltip");
+                    tooltip.textContent = "Tooltip example";
+                }
+            });
+
+            // Loading colours
+            loadColours.addEventListener("click", function (event) {
+                colourLoader.click();
+            });
+
+            colourLoader.addEventListener("change", async function (event) {
+                await colourLoader.files[0].text().then((content) => {
+                    try {
+                        let loadedColours = JSON.parse(content);
+
+                        for (const c in loadedColours) {
+                            document.body.style.setProperty(c, loadedColours[c]);
+                            document.getElementById(c).value = loadedColours[c];
+                            localStorage.setItem(c, loadedColours[c]);
+                            this.value = "";
+                        }
+                    } catch (error) {
+                        alert(`Error while reading colours file: ${error}`);
+                    }
+                });
+            });
+
+            // Saving colours
+            saveColours.addEventListener("click", function (event) {
+                let savedColours = {};
+
+                Object.keys(allColours).forEach((c) => {
+                    savedColours[c] = document.body.style.getPropertyValue(c);
+                });
+
+                let data = encodeURIComponent(JSON.stringify(savedColours, undefined, 4));
+                this.href = `data:text/plain;charset=utf-8,${data}`;
+            });
+
+            // Exiting on pressing Escape
+            main.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") switchScene("main", "menu");
+            });
+            settings.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") switchScene("settings", "menu");
+            });
+            about.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") switchScene("about", "menu");
+            });
+
+            // Default sounds
+            document
+                .querySelectorAll("button, input, select, textarea, summary, a")
+                .forEach((e) => {
+                    e.addEventListener("click", function (event) {
+                        if (!defaultSounds.checked) return;
+                        playSound("sine", [250, 50, 100], 0.1);
+                    });
+                });
+
+            // Disable continue button once again, just in case
+            continueButton.disabled = true;
+
+            // Functions
+            function fillGrid() {
+                // Clean-up before filling
+                while (grid.hasChildNodes()) grid.lastChild.remove();
+                while (historyList.hasChildNodes()) historyList.lastChild.remove();
+                winText.style.display = "none";
+                loseText.style.display = "none";
+                restartButton.style.display = "none";
+
+                // Reset variables
+                isGameInProcess = true;
+                operations = [["-", "+"][getRandomInt(0, 2)]];
+                cells = [];
+                goal = 0;
+                score = 0;
+                steps = 0;
+
+                /** @type {number[]} */
+                let values = [];
+
+                // Create rows & cells
+                for (let r = 0; r < gridSize; r++) {
+                    let row = grid.appendChild(document.createElement("div"));
+                    row.classList.add("row");
+
+                    for (let c = 0; c < gridSize; c++) {
+                        let value = getRandomInt(-9, 10);
+                        let cell = row.appendChild(document.createElement("button"));
+
+                        // Don't let the value be zero
+                        if (value === 0) {
+                            if (getRandomInt(0, 2) == 0) {
+                                value = 1;
+                            } else {
+                                value = -1;
+                            }
+                        }
+
+                        cell.tabIndex = 0;
+                        cell.classList.add("cell");
+                        cell.textContent = value;
+                        cell.addEventListener("click", function (event) {
+                            if (!isGameInProcess) return;
+                            if (this.classList.contains("off")) return;
+
+                            // Create a history item
+                            let historyItem = historyList.appendChild(document.createElement("li"));
+                            historyItem.textContent = `${score} ${operations[0]} ${this.textContent}`;
+
+                            // Play sound
+                            if (gameSounds.checked) {
+                                playSound("triangle", [110, 0], 0.5);
+                            }
+
+                            // Manage the cell's properties
+                            this.classList.add("off");
+                            this.textContent = "";
+
+                            // Manage math operations
+                            switch (operations[0]) {
+                                case "+":
+                                    score += value;
+                                    historyItem.textContent += ` = ${score}`;
+                                    break;
+                                case "-":
+                                    score -= value;
+                                    historyItem.textContent += ` = ${score}`;
+                                    break;
+                                case "*":
+                                    score *= value;
+                                    historyItem.textContent += ` = ${score}`;
+                                    break;
+                                case "/":
+                                    /** @type {number} */
+                                    let remainder = score % value;
+                                    score = Math.round(score / value);
+                                    historyItem.textContent += ` ${remainder === 0 ? "=" : "≈"} ${score}`;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            operations.splice(0, 1);
+                            score = clamp(-9999, score, 9999);
+
+                            // Update the game's interface
+                            steps++;
+                            fillOperations();
+                            statusBar.textContent = `${score}/${goal} | ${steps} | ${operations.join(" ")}`;
+
+                            // Check win/lose conditions
+                            if (score === goal) {
+                                // Won!
+                                winText.style.display = "block";
+                                restartButton.style.display = "flex";
+                                isGameInProcess = false;
+                            } else if (steps === gridSize * gridSize) {
+                                // Lost!
+                                loseText.style.display = "block";
+                                restartButton.style.display = "flex";
+                                isGameInProcess = false;
+                            }
+                        });
+
+                        cells.push(cell);
+                        values.push(value);
+                    }
+                }
+
+                // Find a random number of random cells & generate their sum
+                /** @type {number} */
+                let numCells = getRandomInt(gridSize * 2, gridSize * (gridSize - 1));
+
+                for (let i = 0; i < numCells; i++) {
+                    /** @type {number} */
+                    let randomIndex = getRandomInt(0, values.length - 1);
+
+                    // Randomise the goal a bit
+                    if (getRandomInt(0, 2) === 0) {
+                        goal += values[randomIndex];
+                    } else {
+                        goal += Math.abs(values[randomIndex]);
+                    }
+                }
+
+                // More randomisation for the goal
+                if (getRandomInt(0, 2) === 0) {
+                    goal *= -1;
+                }
+                goal = Math.round(goal * getRandomFloat(1, 1.5));
+
+                // Update the game's interface
+                fillOperations();
+                continueButton.disabled = false;
+                statusBar.textContent = `0/${goal} | ${steps} | ${operations.join(" ")}`;
+            }
+
+            function fillOperations() {
+                while (operations.length < 3)
+                    operations.push(["+", "-", "*", "/"][getRandomInt(0, 4)]);
+            }
+
+            /**
+             * @param {number} min
+             * @param {number} max
+             * @returns Random number in [min;max) range
+             */
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+
+            /**
+             * @param {number} min
+             * @param {number} max
+             * @returns Random number in [min;max) range
+             */
+            function getRandomFloat(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            /**
+             * @param {boolean} restart
+             */
+            function play(restart) {
+                switchScene("menu", "main");
+                if (restart) fillGrid();
+            }
+
+            function loadSettings() {
+                // Volume
+                volumeInput.value = localStorage.getItem("volume") ?? "0.5";
+
+                // Default sounds
+                if (localStorage.getItem("default-sounds")) {
+                    defaultSounds.checked = localStorage.getItem("default-sounds") === "true";
+                } else {
+                    defaultSounds.checked = true;
+                    localStorage.setItem("default-sounds", "true");
+                }
+
+                // Game sounds
+                if (localStorage.getItem("game-sounds")) {
+                    gameSounds.checked = localStorage.getItem("game-sounds") === "true";
+                } else {
+                    gameSounds.checked = true;
+                    localStorage.setItem("game-sounds", "true");
+                }
+            }
+
+            function switchScene(from, to) {
+                if (from === to) return;
+
+                try {
+                    document.getElementById(from).style.display = "none";
+                    document.getElementById(to).style.display = "flex";
+                    document.getElementById(to).focus();
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+
+            /**
+             * @param {'square' | 'sawtooth' | 'triangle' | 'sine'} type
+             * @param {number[]} frequencies
+             * @param {number} duration
+             */
+            function playSound(type, frequencies, duration) {
+                if (!audio || +volumeInput.value === 0) return;
+
+                /** @type {OscillatorNode} */
+                let oscillator = audio.createOscillator();
+                /** @type {GainNode} */
+                let volume = audio.createGain();
+
+                oscillator.type = type;
+                oscillator.frequency.value = frequencies[0];
+                oscillator.frequency.setValueCurveAtTime(frequencies, audio.currentTime, duration);
+                oscillator.connect(volume);
+
+                volume.gain.value = +volumeInput.value;
+                volume.gain.setValueCurveAtTime(
+                    [0, +volumeInput.value, 0],
+                    audio.currentTime,
+                    duration,
+                );
+                volume.connect(audio.destination);
+
+                oscillator.start();
+                oscillator.stop(audio.currentTime + duration);
+            }
+
+            /**
+             * @param {number} min
+             * @param {number} value
+             * @param {number} max
+             * @returns {number}
+             */
+            function ringClamp(min, value, max) {
+                return value < min ? max : value > max ? min : value;
+            }
+
+            /**
+             * @param {number} min
+             * @param {number} value
+             * @param {number} max
+             * @returns {number}
+             */
+            function clamp(min, value, max) {
+                return value < min ? min : value > max ? max : value;
+            }
+
+            /**
+             * @typedef {Object} Translation
+             * @property {string} name
+             * @property {string[]} langTags
+             * @property {LangElement[]} elements
+             */
+            /**
+             * @param {Translation[]} languages
+             */
+            function generateLanguagesList(languages) {
+                /** @type {HTMLSelectElement} */
+                let list = document.getElementById("lang");
+                list.addEventListener("change", function (event) {
+                    selectLanguage(languages, true);
+                });
+
+                for (let l of languages) {
+                    /** @type {HTMLOptionElement} */
+                    let option = list.appendChild(document.createElement("option"));
+                    option.value = l.name;
+                    option.textContent = l.name;
+                }
+
+                selectLanguage(languages, false);
+            }
+
+            /**
+             * @param {Translation[]} languages
+             * @param {boolean} fromMenu
+             */
+            function selectLanguage(languages, fromMenu) {
+                /** @type {HTMLSelectElement} */
+                let menu = document.getElementById("lang");
+                /** @type {string} */
+                let selection = null;
+
+                if (!fromMenu) {
+                    if (localStorage.getItem("lang")) {
+                        selection = localStorage.getItem("lang");
+                        menu.value = selection;
+                    } else if (navigator.language) {
+                        // Iterate over translations
+                        for (let l of languages) {
+                            // If the valid option is finally found, exit
+                            if (selection) {
+                                break;
+                            } else if (l.langTags) {
+                                // Otherwise iterate over the tags and
+                                // compare them to the browser language
+                                for (let t of l.langTags) {
+                                    if (navigator.language === t) {
+                                        menu.value = l.name;
+                                        selection = l.name;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    selection = menu.value;
+                }
+
+                if (selection) {
+                    /** @type {Translation} */
+                    let translation = {};
+
+                    for (let l of languages) {
+                        if (l.name === selection) {
+                            translation = l;
+                            break;
+                        }
+                    }
+
+                    if (translation) {
+                        localStorage.setItem("lang", selection);
+
+                        for (let e of translation.elements) {
+                            let target = document.getElementById(e.id);
+
+                            if (target) {
+                                if (e.textContent) {
+                                    target.textContent = e.textContent;
+                                }
+
+                                if (e.placeholder) {
+                                    target.placeholder = e.placeholder;
+                                }
+
+                                if (e.childNodesTexts) {
+                                    /** @type {number} */
+                                    let index = 0;
+
+                                    for (let c of target.childNodes) {
+                                        if (
+                                            c.textContent &&
+                                            c.textContent.trim() !== "" &&
+                                            e.childNodesTexts[index]
+                                        ) {
+                                            c.textContent = e.childNodesTexts[index];
+                                            index++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            /**
+             * @typedef {Object} LangElement
+             * @property {string} id
+             * @property {string} textContent
+             * @property {string} placeholder
+             * @property {string[]} childNodesTexts
+             */
+            function exportTranslationTemplate() {
+                /** @type {LangElement[]} */
+                let elements = [];
+
+                document.querySelectorAll("body *").forEach((e) => {
+                    if (
+                        e.tagName !== "DIV" &&
+                        e.tagName !== "DETAILS" &&
+                        e.tagName !== "TABLE" &&
+                        e.id &&
+                        e.id !== "lang"
+                    ) {
+                        /** @type {LangElement} */
+                        let newEl = {};
+
+                        newEl.id = e.id;
+
+                        if (e.childNodes) {
+                            newEl.childNodesTexts = [];
+
+                            for (let n of e.childNodes) {
+                                if (n.textContent && n.textContent.trim() !== "") {
+                                    newEl.childNodesTexts.push(n.textContent.trim());
+                                }
+                            }
+                        } else {
+                            if (e.textContent) {
+                                newEl.textContent = e.textContent;
+                            }
+                        }
+
+                        if (e.placeholder) {
+                            newEl.placeholder = e.placeholder;
+                        }
+
+                        if (
+                            newEl.textContent ||
+                            newEl.placeholder ||
+                            newEl?.childNodesTexts.length > 0
+                        ) {
+                            elements.push(newEl);
+                        }
+                    }
+                });
+
+                navigator.clipboard.writeText(JSON.stringify(elements, null, 4));
+                alert("Translation template copied to clipboard!");
+            }
+
+            // Resetting some elements & loading settings
+            loadSettings();
+            generateLanguagesList([
+                {
+                    name: "English [Vitaly Ulyanov]",
+                    langTags: [
+                        "en",
+                        "en-AU",
+                        "en-BZ",
+                        "en-CA",
+                        "en-CB",
+                        "en-GB",
+                        "en-IE",
+                        "en-JM",
+                        "en-NZ",
+                        "en-PH",
+                        "en-TT",
+                        "en-US",
+                        "en-ZA",
+                        "en-ZW",
+                    ],
+                    elements: [
+                        {
+                            id: "exportLang",
+                            childNodesTexts: ["Export texts for translation"],
+                        },
+                        {
+                            id: "title",
+                            childNodesTexts: ["Calculator"],
+                        },
+                        {
+                            id: "start-button",
+                            childNodesTexts: ["Start"],
+                        },
+                        {
+                            id: "continue-button",
+                            childNodesTexts: ["Continue"],
+                        },
+                        {
+                            id: "editor-button",
+                            childNodesTexts: ["Editor"],
+                        },
+                        {
+                            id: "settings-button",
+                            childNodesTexts: ["Settings"],
+                        },
+                        {
+                            id: "about-button",
+                            childNodesTexts: ["About"],
+                        },
+                        {
+                            id: "author",
+                            childNodesTexts: [
+                                "Made by ",
+                                "Vitaly Pavlovich Ulyanov (Vital)",
+                                ".",
+                                "Learn more on my GitHub page!",
+                            ],
+                        },
+                        {
+                            id: "main-back",
+                            childNodesTexts: ["Back"],
+                        },
+                        {
+                            id: "win-text",
+                            childNodesTexts: ["You won!"],
+                        },
+                        {
+                            id: "lose-text",
+                            childNodesTexts: ["You lost!"],
+                        },
+                        {
+                            id: "status-bar-tooltip",
+                            childNodesTexts: ["Score/Goal | Steps taken | Next operations"],
+                        },
+                        {
+                            id: "restart-button",
+                            childNodesTexts: ["New game"],
+                        },
+                        {
+                            id: "editor-title",
+                            childNodesTexts: ["Editor"],
+                        },
+                        {
+                            id: "editor-back",
+                            childNodesTexts: ["Back"],
+                        },
+                        {
+                            id: "settings-title",
+                            childNodesTexts: ["Settings"],
+                        },
+                        {
+                            id: "settings-back",
+                            childNodesTexts: ["Back"],
+                        },
+                        {
+                            id: "sound-settings",
+                            childNodesTexts: ["Sound"],
+                        },
+                        {
+                            id: "volume-label",
+                            childNodesTexts: ["Sound volume"],
+                        },
+                        {
+                            id: "def-sounds-label",
+                            childNodesTexts: ["Default sounds (buttons, inputs, etc.)"],
+                        },
+                        {
+                            id: "colour-settings",
+                            childNodesTexts: ["Colours"],
+                        },
+                        {
+                            id: "load-colours",
+                            childNodesTexts: ["Load colours"],
+                        },
+                        {
+                            id: "save-colours",
+                            childNodesTexts: ["Save colours"],
+                        },
+                        {
+                            id: "--colour-bgr-1-label",
+                            childNodesTexts: ["Background (left)"],
+                        },
+                        {
+                            id: "--colour-bgr-2-label",
+                            childNodesTexts: ["Background (centre)"],
+                        },
+                        {
+                            id: "--colour-bgr-3-label",
+                            childNodesTexts: ["Background (right)"],
+                        },
+                        {
+                            id: "--colour-text-label",
+                            childNodesTexts: ["Text"],
+                        },
+                        {
+                            id: "--colour-button-label",
+                            childNodesTexts: ["Buttons"],
+                        },
+                        {
+                            id: "--colour-border-label",
+                            childNodesTexts: ["Borders"],
+                        },
+                        {
+                            id: "--colour-input-label",
+                            childNodesTexts: ["Inputs"],
+                        },
+                        {
+                            id: "--colour-tooltip-label",
+                            childNodesTexts: ["Tooltip's background"],
+                        },
+                        {
+                            id: "--colour-hovered-bgr-label",
+                            childNodesTexts: ["Hovered element's background"],
+                        },
+                        {
+                            id: "--colour-hovered-fgr-label",
+                            childNodesTexts: ["Hovered element's text"],
+                        },
+                        {
+                            id: "--colour-hovered-border-label",
+                            childNodesTexts: ["Hovered element's border"],
+                        },
+                        {
+                            id: "--colour-disabled-bgr-label",
+                            childNodesTexts: ["Disabled element's background"],
+                        },
+                        {
+                            id: "--colour-disabled-fgr-label",
+                            childNodesTexts: ["Disabled element's text"],
+                        },
+                        {
+                            id: "example-button",
+                            childNodesTexts: ["Button example"],
+                        },
+                        {
+                            id: "example-tooltip",
+                            childNodesTexts: ["Tooltip example"],
+                        },
+                        {
+                            id: "example-disabled-button",
+                            childNodesTexts: ["Disabled button example"],
+                        },
+                        {
+                            id: "example-input",
+                            childNodesTexts: [],
+                            placeholder: "Input example",
+                        },
+                        {
+                            id: "example-buttons",
+                            childNodesTexts: [
+                                "Text example with keyboard buttons (such as ",
+                                "Enter",
+                                ") and programmes' interface buttons (for example, ",
+                                "Apply",
+                                ").",
+                            ],
+                        },
+                        {
+                            id: "example-formatting",
+                            childNodesTexts: [
+                                "Examples of ",
+                                "important",
+                                ", ",
+                                "boldface",
+                                ", ",
+                                "italicised",
+                                ", and ",
+                                "underlined",
+                                " text.",
+                            ],
+                        },
+                        {
+                            id: "example-code",
+                            childNodesTexts: ["Code example"],
+                        },
+                        {
+                            id: "default-settings",
+                            childNodesTexts: ["Restore default settings"],
+                        },
+                        {
+                            id: "about-title",
+                            childNodesTexts: ["About"],
+                        },
+                        {
+                            id: "about-back",
+                            childNodesTexts: ["Back"],
+                        },
+                        {
+                            id: "history-summary",
+                            childNodesTexts: ["Actions history"],
+                        },
+                        {
+                            id: "game-sounds-label",
+                            childNodesTexts: ["Game sounds"],
+                        },
+                        {
+                            id: "about-text",
+                            childNodesTexts: [
+                                "You have a grid of digits and a status bar below it showing your current score, goal, the number of steps taken, and the queue of math operations. Your task is to reach the score goal using basic arithmetic operations (",
+                                "+, -, *, /",
+                                "). Clicking a digit on the grid will perform the leftmost operation in the queue (for example, /), using your current score (say, 12) as the first variable and the selected digit (e.g., 4) as the second one. In our example, the result then will be: ",
+                                "12 / 4 = 3",
+                                ". Good luck!",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    name: "Русский [Виталий Ульянов]",
+                    langTags: ["ru", "ru-RU"],
+                    elements: [
+                        {
+                            id: "exportLang",
+                            childNodesTexts: ["Экспорт текстов для перевода"],
+                        },
+                        {
+                            id: "title",
+                            childNodesTexts: ["Счётчик"],
+                        },
+                        {
+                            id: "start-button",
+                            childNodesTexts: ["Начать"],
+                        },
+                        {
+                            id: "continue-button",
+                            childNodesTexts: ["Продолжить"],
+                        },
+                        {
+                            id: "editor-button",
+                            childNodesTexts: ["Редактор"],
+                        },
+                        {
+                            id: "settings-button",
+                            childNodesTexts: ["Настройки"],
+                        },
+                        {
+                            id: "about-button",
+                            childNodesTexts: ["О программе"],
+                        },
+                        {
+                            id: "author",
+                            childNodesTexts: [
+                                "Автор — ",
+                                "Виталий Павлович Ульянов (Vital)",
+                                ".",
+                                "Узнайте больше на GitHub!",
+                            ],
+                        },
+                        {
+                            id: "main-back",
+                            childNodesTexts: ["Назад"],
+                        },
+                        {
+                            id: "win-text",
+                            childNodesTexts: ["Победа!"],
+                        },
+                        {
+                            id: "lose-text",
+                            childNodesTexts: ["Проигрыш!"],
+                        },
+                        {
+                            id: "status-bar-tooltip",
+                            childNodesTexts: ["Счёт/Цель | Сделано шагов | Очередь действий"],
+                        },
+                        {
+                            id: "restart-button",
+                            childNodesTexts: ["Новая игра"],
+                        },
+                        {
+                            id: "editor-title",
+                            childNodesTexts: ["Редактор"],
+                        },
+                        {
+                            id: "editor-back",
+                            childNodesTexts: ["Назад"],
+                        },
+                        {
+                            id: "settings-title",
+                            childNodesTexts: ["Настройки"],
+                        },
+                        {
+                            id: "settings-back",
+                            childNodesTexts: ["Назад"],
+                        },
+                        {
+                            id: "sound-settings",
+                            childNodesTexts: ["Звук"],
+                        },
+                        {
+                            id: "volume-label",
+                            childNodesTexts: ["Громкость звука"],
+                        },
+                        {
+                            id: "def-sounds-label",
+                            childNodesTexts: ["Стандартные звуки (кнопки, поля ввода и т.п.)"],
+                        },
+                        {
+                            id: "colour-settings",
+                            childNodesTexts: ["Цвета"],
+                        },
+                        {
+                            id: "load-colours",
+                            childNodesTexts: ["Загрузить цвета"],
+                        },
+                        {
+                            id: "save-colours",
+                            childNodesTexts: ["Сохранить цвета"],
+                        },
+                        {
+                            id: "--colour-bgr-1-label",
+                            childNodesTexts: ["Фон (левая часть)"],
+                        },
+                        {
+                            id: "--colour-bgr-2-label",
+                            childNodesTexts: ["Фон (средняя часть)"],
+                        },
+                        {
+                            id: "--colour-bgr-3-label",
+                            childNodesTexts: ["Фон (правая часть)"],
+                        },
+                        {
+                            id: "--colour-text-label",
+                            childNodesTexts: ["Текст"],
+                        },
+                        {
+                            id: "--colour-button-label",
+                            childNodesTexts: ["Кнопки"],
+                        },
+                        {
+                            id: "--colour-border-label",
+                            childNodesTexts: ["Рамки"],
+                        },
+                        {
+                            id: "--colour-input-label",
+                            childNodesTexts: ["Поля ввода"],
+                        },
+                        {
+                            id: "--colour-tooltip-label",
+                            childNodesTexts: ["Фон подсказок"],
+                        },
+                        {
+                            id: "--colour-hovered-bgr-label",
+                            childNodesTexts: ["Фон элемента при наведении"],
+                        },
+                        {
+                            id: "--colour-hovered-fgr-label",
+                            childNodesTexts: ["Текст элемента при наведении"],
+                        },
+                        {
+                            id: "--colour-hovered-border-label",
+                            childNodesTexts: ["Рамки элемента при наведении"],
+                        },
+                        {
+                            id: "--colour-disabled-bgr-label",
+                            childNodesTexts: ["Фон отключённого элемента"],
+                        },
+                        {
+                            id: "--colour-disabled-fgr-label",
+                            childNodesTexts: ["Текст отключённого элемента"],
+                        },
+                        {
+                            id: "example-button",
+                            childNodesTexts: ["Пример кнопки"],
+                        },
+                        {
+                            id: "example-tooltip",
+                            childNodesTexts: ["Пример подсказки"],
+                        },
+                        {
+                            id: "example-disabled-button",
+                            childNodesTexts: ["Пример отключённой кнопки"],
+                        },
+                        {
+                            id: "example-input",
+                            childNodesTexts: [],
+                            placeholder: "Пример поля ввода",
+                        },
+                        {
+                            id: "example-buttons",
+                            childNodesTexts: [
+                                "Пример текста с кнопками клавиатуры (например, ",
+                                "Enter",
+                                ") и\n интерфейса программ (например, ",
+                                "Применить",
+                                ").",
+                            ],
+                        },
+                        {
+                            id: "example-formatting",
+                            childNodesTexts: [
+                                "Пример ",
+                                "важного",
+                                ", ",
+                                "полужирного",
+                                ", ",
+                                "курсивного",
+                                " и ",
+                                "подчёркнутого",
+                                " текста.",
+                            ],
+                        },
+                        {
+                            id: "example-code",
+                            childNodesTexts: ["Пример кода"],
+                        },
+                        {
+                            id: "default-settings",
+                            childNodesTexts: ["Сбросить все настройки"],
+                        },
+                        {
+                            id: "about-title",
+                            childNodesTexts: ["О программе"],
+                        },
+                        {
+                            id: "about-back",
+                            childNodesTexts: ["Назад"],
+                        },
+                        {
+                            id: "history-summary",
+                            childNodesTexts: ["История действий"],
+                        },
+                        {
+                            id: "game-sounds-label",
+                            childNodesTexts: ["Звуки игры"],
+                        },
+                        {
+                            id: "about-text",
+                            childNodesTexts: [
+                                "Перед Вами сетка с цифрами и строка состояния внизу, показывающая текущий счёт, цель, число сделанных шагов и очередь математических действий. Ваша задача — достичь цели с помощью простейших арифметических операций (",
+                                "+, -, *, /",
+                                "). Нажатие на цифру на сетке выполнит самую левую в очереди операцию (например, /), где первой переменной будет Ваш текущий счёт (скажем, 12), а второй — выбранная цифра (напр., 4). В нашем примере результат получится таким: ",
+                                "12 / 4 = 3",
+                                ". Успехов!",
+                            ],
+                        },
+                    ],
+                },
+            ]);
+        </script>
+    </body>
+</html>
