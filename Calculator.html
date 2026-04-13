@@ -26,6 +26,23 @@
                 }
             }
 
+            @keyframes text-show {
+                0% {
+                    opacity: 0;
+                    transform: translateX(-100%);
+                }
+                50% {
+                    transform: scaleX(-1);
+                }
+            }
+
+            @keyframes cell-show {
+                from {
+                    opacity: 0;
+                    transform: scale(0);
+                }
+            }
+
             /* All elements */
             :root {
                 --colour-bgr-1: #ff9696;
@@ -41,7 +58,7 @@
                 --colour-hovered-border: #b4b4b4;
                 --colour-disabled-bgr: #afafaf;
                 --colour-disabled-fgr: #1e1e1e;
-                --cell-size: calc(42px + 1.2vmax);
+                --cell-size: calc(48px + 2.35vmin);
                 --cell-font-size: calc(var(--cell-size) * 0.6);
                 --even-row-margin-left: calc(var(--cell-size) * 0.5 + 1px);
                 --even-row-margin-block: calc(var(--cell-size) * -0.12);
@@ -534,6 +551,7 @@
                 user-select: none;
                 -moz-user-select: none;
                 -webkit-user-select: none;
+                animation: cell-show 0.75s ease-out;
                 transition:
                     all 2s ease-in,
                     border 0.3s ease;
@@ -623,6 +641,8 @@
             }
 
             #status-bar {
+                display: flex;
+                justify-content: center;
                 position: sticky;
                 bottom: 0px;
                 background-color: var(--colour-tooltip);
@@ -637,18 +657,45 @@
                 background-color: var(--colour-input);
             }
 
-            #status-bar-text {
-                display: flex;
-                justify-content: center;
+            #status-bar-score,
+            #status-bar-steps,
+            #status-bar-current-operation,
+            #status-bar-operation-queue {
                 font-family: monospace;
                 font-size: 1.2em;
                 font-weight: 900;
+                margin-inline: 4px;
+                padding-inline: 4px;
+                overflow: auto;
+                white-space: nowrap;
+            }
+
+            #status-bar-steps {
+                border-left: 3px solid var(--colour-text);
+                border-right: 3px solid var(--colour-text);
+                border-radius: 0px;
+                padding-inline: 8px;
+            }
+
+            #status-bar-current-operation {
+                background-color: var(--colour-button);
+                border-radius: 0px;
+                min-width: max-content;
+            }
+
+            #status-bar-operation-queue {
+                max-width: 5em;
             }
 
             #history-list > li {
                 font-family: monospace;
                 font-size: 1.1em;
                 font-weight: 900;
+            }
+
+            #win-text,
+            #lose-text {
+                animation: text-show 2s ease;
             }
 
             /* Media queries */
@@ -695,15 +742,19 @@
         <div id="main" class="scene" tabindex="0">
             <button id="main-back" onclick="switchScene('main', 'menu')">Back</button>
 
-            <h2 id="win-text" style="display: none">You won!</h2>
-            <h2 id="lose-text" style="display: none">You lost!</h2>
+            <h1 id="win-text" style="display: none">You won!</h1>
+            <h1 id="lose-text" style="display: none">You lost!</h1>
 
             <div id="container">
                 <div id="grid"></div>
             </div>
 
             <div id="status-bar" class="tooltip-parent">
-                <span id="status-bar-text">0/0 | 0 | + * /</span>
+                <span id="status-bar-score">0/0</span>
+                <span id="status-bar-steps">0</span>
+                <span id="status-bar-current-operation">+</span>
+                <span id="status-bar-operation-queue">* /</span>
+
                 <span id="status-bar-tooltip" class="tooltip"
                     >Score/Goal | Steps taken | Next operations</span
                 >
@@ -843,7 +894,13 @@
             /** @type {HTMLDivElement} */
             let grid = document.getElementById("grid");
             /** @type {HTMLSpanElement} */
-            let statusBar = document.getElementById("status-bar-text");
+            let scoreSpan = document.getElementById("status-bar-score");
+            /** @type {HTMLSpanElement} */
+            let stepsSpan = document.getElementById("status-bar-steps");
+            /** @type {HTMLSpanElement} */
+            let currentOperationSpan = document.getElementById("status-bar-current-operation");
+            /** @type {HTMLSpanElement} */
+            let operationsQueueSpan = document.getElementById("status-bar-operation-queue");
             /** @type {HTMLButtonElement} */
             let restartButton = document.getElementById("restart-button");
             /** @type {HTMLUListElement} */
@@ -1077,6 +1134,7 @@
                         cell.tabIndex = 0;
                         cell.classList.add("cell");
                         cell.textContent = value;
+                        cell.style.animationDuration = `${getRandomFloat(0.15, 1.2)}s`;
                         cell.addEventListener("click", function (event) {
                             if (!isGameInProcess) return;
                             if (this.classList.contains("off")) return;
@@ -1122,8 +1180,10 @@
 
                             // Update the game's interface
                             steps++;
-                            fillOperations();
-                            statusBar.textContent = `${score}/${goal} | ${steps} | ${operations.join(" ")}`;
+                            scoreSpan.textContent = `${score}/${goal}`;
+                            stepsSpan.textContent = `${steps}`;
+                            currentOperationSpan.textContent = operations[0];
+                            operationsQueueSpan.textContent = operations.slice(1, 4).join(" ");
 
                             // Check win/lose conditions
                             if (score === goal) {
@@ -1169,11 +1229,14 @@
                 // Update the game's interface
                 fillOperations();
                 continueButton.disabled = false;
-                statusBar.textContent = `0/${goal} | ${steps} | ${operations.join(" ")}`;
+                scoreSpan.textContent = `${score}/${goal}`;
+                stepsSpan.textContent = `${steps}`;
+                currentOperationSpan.textContent = operations[0];
+                operationsQueueSpan.textContent = operations.slice(1, 4).join(" ");
             }
 
             function fillOperations() {
-                while (operations.length < 3)
+                while (operations.length < gridSize * gridSize)
                     operations.push(["+", "-", "*", "/"][getRandomInt(0, 4)]);
             }
 
@@ -1730,7 +1793,7 @@
                         },
                         {
                             id: "about-button",
-                            childNodesTexts: ["О программе"],
+                            childNodesTexts: ["Об игре"],
                         },
                         {
                             id: "author",
@@ -1904,7 +1967,7 @@
                         },
                         {
                             id: "about-title",
-                            childNodesTexts: ["О программе"],
+                            childNodesTexts: ["Об игре"],
                         },
                         {
                             id: "about-back",
