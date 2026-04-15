@@ -535,9 +535,12 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: var(--colour-bgr-2);
+                background-color: transparent;
+                box-shadow:
+                    inset 1px 1px 4px 2px var(--colour-border),
+                    1px 1px 1px var(--colour-text);
                 color: var(--colour-text);
-                border: 0.09em outset var(--colour-border);
+                border: 0px solid var(--colour-border);
                 border-radius: 50%;
                 font-family: monospace;
                 font-size: var(--cell-font-size);
@@ -551,37 +554,36 @@
                 user-select: none;
                 -moz-user-select: none;
                 -webkit-user-select: none;
+                outline-style: none;
                 animation: cell-show 0.75s ease-out;
                 transition:
                     all 2s ease-in,
-                    border 0.3s ease;
+                    border 1s ease,
+                    box-shadow 1s ease;
             }
 
             .cell:focus,
             .cell:hover {
-                border: 0.2em outset var(--colour-text);
+                border: 0.22em solid var(--colour-border);
                 background-color: var(--colour-button);
+                box-shadow: none;
                 color: var(--colour-text);
-                transition:
-                    border 0.3s ease,
-                    border-color 0s ease;
-                outline-style: none;
             }
 
             .off {
-                border: calc(var(--cell-size) * 0.35) ridge var(--colour-border);
-                background-color: var(--colour-bgr-1);
+                background-color: var(--colour-tooltip);
+                box-shadow:
+                    inset 1px 1px 8px 4px var(--colour-border),
+                    1px 1px 1px var(--colour-text);
                 cursor: not-allowed;
+                transform: scale(0.9);
                 transition: all 1s ease;
             }
 
             .off:focus,
             .off:hover {
-                border: calc(var(--cell-size) * 0.35) ridge var(--colour-border);
-                background-color: var(--colour-text);
-                transition:
-                    all 1s ease,
-                    background-color 0.3s ease;
+                transform: scale(0.8);
+                transition: all 0.1s ease;
             }
 
             .about-strong {
@@ -1145,7 +1147,7 @@
 
                             // Play sound
                             if (gameSounds.checked) {
-                                playSound("triangle", [110, 0], 0.5);
+                                playSound("sine", [40, 400], 0.2);
                             }
 
                             // Manage the cell's properties
