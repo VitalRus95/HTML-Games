@@ -568,6 +568,7 @@
                 background-color: var(--colour-button);
                 box-shadow: none;
                 color: var(--colour-text);
+                transition: all 0s ease;
             }
 
             .off {
@@ -751,11 +752,11 @@
                 <div id="grid"></div>
             </div>
 
-            <div id="status-bar" class="tooltip-parent">
-                <span id="status-bar-score">0/0</span>
-                <span id="status-bar-steps">0</span>
-                <span id="status-bar-current-operation">+</span>
-                <span id="status-bar-operation-queue">* /</span>
+            <div id="status-bar" class="tooltip-parent" tabindex="0">
+                <span id="status-bar-score" tabindex="0">0/0</span>
+                <span id="status-bar-steps" tabindex="0">0</span>
+                <span id="status-bar-current-operation" tabindex="0">+</span>
+                <span id="status-bar-operation-queue" tabindex="0">* /</span>
 
                 <span id="status-bar-tooltip" class="tooltip"
                     >Score/Goal | Steps taken | Next operations</span
@@ -1133,74 +1134,7 @@
                             }
                         }
 
-                        cell.tabIndex = 0;
-                        cell.classList.add("cell");
-                        cell.textContent = value;
-                        cell.style.animationDuration = `${getRandomFloat(0.15, 1.2)}s`;
-                        cell.addEventListener("click", function (event) {
-                            if (!isGameInProcess) return;
-                            if (this.classList.contains("off")) return;
-
-                            // Create a history item
-                            let historyItem = historyList.appendChild(document.createElement("li"));
-                            historyItem.textContent = `${score} ${operations[0]} ${this.textContent}`;
-
-                            // Play sound
-                            if (gameSounds.checked) {
-                                playSound("sine", [40, 400], 0.2);
-                            }
-
-                            // Manage the cell's properties
-                            this.classList.add("off");
-                            this.textContent = "";
-
-                            // Manage math operations
-                            switch (operations[0]) {
-                                case "+":
-                                    score += value;
-                                    historyItem.textContent += ` = ${score}`;
-                                    break;
-                                case "-":
-                                    score -= value;
-                                    historyItem.textContent += ` = ${score}`;
-                                    break;
-                                case "*":
-                                    score *= value;
-                                    historyItem.textContent += ` = ${score}`;
-                                    break;
-                                case "/":
-                                    /** @type {number} */
-                                    let remainder = score % value;
-                                    score = Math.round(score / value);
-                                    historyItem.textContent += ` ${remainder === 0 ? "=" : "≈"} ${score}`;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            operations.splice(0, 1);
-                            score = clamp(-9999, score, 9999);
-
-                            // Update the game's interface
-                            steps++;
-                            scoreSpan.textContent = `${score}/${goal}`;
-                            stepsSpan.textContent = `${steps}`;
-                            currentOperationSpan.textContent = operations[0];
-                            operationsQueueSpan.textContent = operations.slice(1, 4).join(" ");
-
-                            // Check win/lose conditions
-                            if (score === goal) {
-                                // Won!
-                                winText.style.display = "block";
-                                restartButton.style.display = "flex";
-                                isGameInProcess = false;
-                            } else if (steps === gridSize * gridSize) {
-                                // Lost!
-                                loseText.style.display = "block";
-                                restartButton.style.display = "flex";
-                                isGameInProcess = false;
-                            }
-                        });
-
+                        setUpCell(cell, value, r, c);
                         cells.push(cell);
                         values.push(value);
                     }
@@ -1235,6 +1169,110 @@
                 stepsSpan.textContent = `${steps}`;
                 currentOperationSpan.textContent = operations[0];
                 operationsQueueSpan.textContent = operations.slice(1, 4).join(" ");
+            }
+
+            /**
+             * @param {HTMLButtonElement} cell
+             * @param {number} value
+             * @param {number} row
+             * @param {number} column
+             */
+            function setUpCell(cell, value, row, column) {
+                cell.tabIndex = 0;
+                cell.classList.add("cell");
+                cell.textContent = value;
+                cell.style.animationDuration = `${getRandomFloat(0.15, 1.2)}s`;
+
+                // Clicking a cell
+                cell.addEventListener("click", function (event) {
+                    if (!isGameInProcess) return;
+                    if (this.classList.contains("off")) return;
+
+                    // Create a history item
+                    let historyItem = historyList.appendChild(document.createElement("li"));
+                    historyItem.tabIndex = 0;
+                    historyItem.textContent = `${score} ${operations[0]} ${this.textContent}`;
+
+                    // Play sound
+                    if (gameSounds.checked) {
+                        playSound("sine", [40, 330], 0.2);
+                    }
+
+                    // Manage the cell's properties
+                    this.classList.add("off");
+                    this.textContent = "";
+
+                    // Manage math operations
+                    switch (operations[0]) {
+                        case "+":
+                            score += value;
+                            historyItem.textContent += ` = ${score}`;
+                            break;
+                        case "-":
+                            score -= value;
+                            historyItem.textContent += ` = ${score}`;
+                            break;
+                        case "*":
+                            score *= value;
+                            historyItem.textContent += ` = ${score}`;
+                            break;
+                        case "/":
+                            /** @type {number} */
+                            let remainder = score % value;
+                            score = Math.round(score / value);
+                            historyItem.textContent += ` ${remainder === 0 ? "=" : "≈"} ${score}`;
+                            break;
+                        default:
+                            break;
+                    }
+                    operations.splice(0, 1);
+                    score = clamp(-9999, score, 9999);
+
+                    // Update the game's interface
+                    steps++;
+                    scoreSpan.textContent = `${score}/${goal}`;
+                    stepsSpan.textContent = `${steps}`;
+                    currentOperationSpan.textContent = operations[0];
+                    operationsQueueSpan.textContent = operations.slice(1, 4).join(" ");
+
+                    // Check win/lose conditions
+                    if (score === goal) {
+                        // Won!
+                        winText.style.display = "block";
+                        restartButton.style.display = "flex";
+                        isGameInProcess = false;
+                    } else if (steps === gridSize * gridSize) {
+                        // Lost!
+                        loseText.style.display = "block";
+                        restartButton.style.display = "flex";
+                        isGameInProcess = false;
+                    }
+                });
+
+                // Switching between cells with arrow buttons
+                cell.addEventListener("keydown", function (event) {
+                    const index = row * gridSize + column;
+                    const lastIndex = cells.length - 1;
+
+                    switch (event.key) {
+                        case "ArrowUp":
+                            cells[
+                                ringClamp(0, index - gridSize, (gridSize - 1) * gridSize + column)
+                            ]?.focus();
+                            break;
+                        case "ArrowDown":
+                            cells[ringClamp(column, index + gridSize, lastIndex)]?.focus();
+                            break;
+                        case "ArrowLeft":
+                            cells[ringClamp(0, index - 1, lastIndex)]?.focus();
+                            break;
+                        case "ArrowRight":
+                            cells[ringClamp(0, index + 1, lastIndex)]?.focus();
+                            break;
+                        default:
+                            break;
+                    }
+                });
             }
 
             function fillOperations() {
