@@ -962,8 +962,19 @@
             let operations = [];
             /** @type {HTMLButtonElement[]} */
             let cells = [];
+            /** @type {number} */
+            let lastCellIndex = undefined;
+            /** @type {number} */
+            let lastStatusBarItemIndex = 0;
             /** @type {boolean} */
             let isGameInProcess = true;
+            /** @type {HTMLSpanElement[]} */
+            let statusBarElements = [
+                scoreSpan,
+                stepsSpan,
+                currentOperationSpan,
+                operationsQueueSpan,
+            ];
 
             // Settings' events
             volumeInput.addEventListener("change", function (event) {
@@ -1096,6 +1107,35 @@
             // Disable continue button once again, just in case
             continueButton.disabled = true;
 
+            // Switching between status bar elements
+            statusBarElements.forEach((e, i) => {
+                e.addEventListener("keydown", function (event) {
+                    switch (event.key) {
+                        case "s":
+                            cells[lastCellIndex]?.focus();
+                            break;
+                        case "ArrowLeft":
+                            lastStatusBarItemIndex = ringClamp(
+                                0,
+                                i - 1,
+                                statusBarElements.length - 1,
+                            );
+                            statusBarElements[lastStatusBarItemIndex]?.focus();
+                            break;
+                        case "ArrowRight":
+                            lastStatusBarItemIndex = ringClamp(
+                                0,
+                                i + 1,
+                                statusBarElements.length - 1,
+                            );
+                            statusBarElements[lastStatusBarItemIndex]?.focus();
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            });
+
             // Functions
             function fillGrid() {
                 // Clean-up before filling
@@ -1178,10 +1218,17 @@
              * @param {number} column
              */
             function setUpCell(cell, value, row, column) {
+                const index = row * gridSize + column;
+
                 cell.tabIndex = 0;
                 cell.classList.add("cell");
                 cell.textContent = value;
                 cell.style.animationDuration = `${getRandomFloat(0.15, 1.2)}s`;
+
+                // Focusing a cell
+                cell.addEventListener("focus", function (event) {
+                    lastCellIndex = index;
+                });
 
                 // Clicking a cell
                 cell.addEventListener("click", function (event) {
@@ -1249,9 +1296,8 @@
                     }
                 });
 
-                // Switching between cells with arrow buttons
+                // Keyboard controls
                 cell.addEventListener("keydown", function (event) {
-                    const index = row * gridSize + column;
                     const lastIndex = cells.length - 1;
 
                     switch (event.key) {
@@ -1268,6 +1314,9 @@
                             break;
                         case "ArrowRight":
                             cells[ringClamp(0, index + 1, lastIndex)]?.focus();
+                            break;
+                        case "s":
+                            statusBarElements[lastStatusBarItemIndex].focus();
                             break;
                         default:
                             break;
